@@ -24,12 +24,6 @@ module MouseImage(
     );
     
 reg [11:0] rgb_out_nxt;
-reg [9:0]  vcount_temp1, vcount_temp2;
-reg [10:0] hcount_temp1, hcount_temp2;
-reg vsync_temp1, vsync_temp2;
-reg hsync_temp1, hsync_temp2;
-reg vblnk_temp1, vblnk_temp2;
-reg hblnk_temp1, hblnk_temp2;
 reg State, State_nxt;
 
 localparam PIXEL_lINE = 17;
@@ -48,25 +42,12 @@ if (rst) begin
     State <= MOUSE;  
     end
 else begin
-    hsync_temp1 <= hsync;
-    vsync_temp1 <= vsync;
-    hblnk_temp1 <= hblnk;
-    vblnk_temp1 <= vblnk;
-    hcount_temp1 <= hcount;
-    vcount_temp1 <= vcount;
-    hsync_temp2 <= hsync_temp1;
-    vsync_temp2 <= vsync_temp1;
-    hblnk_temp2 <= hblnk_temp1;
-    vblnk_temp2 <= vblnk_temp1;
-    hcount_temp2 <= hcount_temp1;
-    vcount_temp2 <= vcount_temp1;
-    
-    hsync_out <= hsync_temp2;
-    vsync_out <= vsync_temp2;
-    hblnk_out <= hblnk_temp2;
-    vblnk_out <= vblnk_temp2;
-    hcount_out <= hcount_temp2;
-    vcount_out <= vcount_temp2;
+    hsync_out <= hsync;
+    vsync_out <= vsync;
+    hblnk_out <= hblnk;
+    vblnk_out <= vblnk;
+    hcount_out <= hcount;
+    vcount_out <= vcount;
     rgb_out <= rgb_out_nxt;
     State <= State_nxt;
     end
@@ -88,52 +69,52 @@ always @* begin
 always @* begin
     case(State)
     MOUSE: begin
-        if (vcount_temp2 >= ypos && vcount_temp2 <= ypos + PIXEL_lINE && hcount_temp2 == xpos) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 1 && hcount_temp2 == xpos + 1 ) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 2 && hcount_temp2 == xpos + 2 ) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 3 && hcount_temp2 == xpos + 3 ) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 4 && hcount_temp2 == xpos + 4 ) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 5 && hcount_temp2 == xpos + 5 ) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 6 && hcount_temp2 == xpos + 6 ) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 7 && hcount_temp2 == xpos + 7 ) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 8 && hcount_temp2 == xpos + 8 ) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 9 && hcount_temp2 == xpos + 9 ) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 10 && hcount_temp2 == xpos +10) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 11 && hcount_temp2 == xpos +11) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 12 && hcount_temp2 == xpos +12) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 12 && hcount_temp2 == xpos +11) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 12 && hcount_temp2 == xpos +10) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 12 && hcount_temp2 == xpos + 9) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 12 && hcount_temp2 == xpos + 8) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 12 && hcount_temp2 == xpos + 7) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 12 && hcount_temp2 == xpos + 6) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 12 && hcount_temp2 == xpos + 5) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 16 && hcount_temp2 == xpos + 1) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 15 && hcount_temp2 == xpos + 2) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 14 && hcount_temp2 == xpos + 3) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 == ypos + 13 && hcount_temp2 == xpos + 4) rgb_out_nxt = 12'h0_0_0;
-        else if (vcount_temp2 >= ypos + 2 && vcount_temp2 <= ypos + 15 && hcount_temp2 == xpos + 1) rgb_out_nxt = 12'hf_f_f;
-        else if (vcount_temp2 >= ypos + 3 && vcount_temp2 <= ypos + 14 && hcount_temp2 == xpos + 2) rgb_out_nxt = 12'hf_f_f;
-        else if (vcount_temp2 >= ypos + 4 && vcount_temp2 <= ypos + 13 && hcount_temp2 == xpos + 3) rgb_out_nxt = 12'hf_f_f;
-        else if (vcount_temp2 >= ypos + 5 && vcount_temp2 <= ypos + 12 && hcount_temp2 == xpos + 4) rgb_out_nxt = 12'hf_f_f;
-        else if (vcount_temp2 >= ypos + 6 && vcount_temp2 <= ypos + 11 && hcount_temp2 == xpos + 5) rgb_out_nxt = 12'hf_f_f;
-        else if (vcount_temp2 >= ypos + 7 && vcount_temp2 <= ypos + 11 && hcount_temp2 == xpos + 6) rgb_out_nxt = 12'hf_f_f;
-        else if (vcount_temp2 >= ypos + 8 && vcount_temp2 <= ypos + 11 && hcount_temp2 == xpos + 7) rgb_out_nxt = 12'hf_f_f;
-        else if (vcount_temp2 >= ypos + 9 && vcount_temp2 <= ypos + 11 && hcount_temp2 == xpos + 8) rgb_out_nxt = 12'hf_f_f;
-        else if (vcount_temp2 >= ypos + 10 &&vcount_temp2 <= ypos + 11 && hcount_temp2 == xpos + 9) rgb_out_nxt = 12'hf_f_f;
-        else if (vcount_temp2 == ypos + 11 && hcount_temp2 == xpos + 10) rgb_out_nxt = 12'hf_f_f;
+        if (vcount >= ypos && vcount <= ypos + PIXEL_lINE && hcount == xpos) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 1 && hcount == xpos + 1 ) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 2 && hcount == xpos + 2 ) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 3 && hcount == xpos + 3 ) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 4 && hcount == xpos + 4 ) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 5 && hcount == xpos + 5 ) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 6 && hcount == xpos + 6 ) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 7 && hcount == xpos + 7 ) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 8 && hcount == xpos + 8 ) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 9 && hcount == xpos + 9 ) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 10 && hcount == xpos +10) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 11 && hcount == xpos +11) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 12 && hcount == xpos +12) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 12 && hcount == xpos +11) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 12 && hcount == xpos +10) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 12 && hcount == xpos + 9) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 12 && hcount == xpos + 8) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 12 && hcount == xpos + 7) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 12 && hcount == xpos + 6) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 12 && hcount == xpos + 5) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 16 && hcount == xpos + 1) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 15 && hcount == xpos + 2) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 14 && hcount == xpos + 3) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount == ypos + 13 && hcount == xpos + 4) rgb_out_nxt = 12'h0_0_0;
+        else if (vcount >= ypos + 2 && vcount <= ypos + 15 && hcount == xpos + 1) rgb_out_nxt = 12'hf_f_f;
+        else if (vcount >= ypos + 3 && vcount <= ypos + 14 && hcount == xpos + 2) rgb_out_nxt = 12'hf_f_f;
+        else if (vcount >= ypos + 4 && vcount <= ypos + 13 && hcount == xpos + 3) rgb_out_nxt = 12'hf_f_f;
+        else if (vcount >= ypos + 5 && vcount <= ypos + 12 && hcount == xpos + 4) rgb_out_nxt = 12'hf_f_f;
+        else if (vcount >= ypos + 6 && vcount <= ypos + 11 && hcount == xpos + 5) rgb_out_nxt = 12'hf_f_f;
+        else if (vcount >= ypos + 7 && vcount <= ypos + 11 && hcount == xpos + 6) rgb_out_nxt = 12'hf_f_f;
+        else if (vcount >= ypos + 8 && vcount <= ypos + 11 && hcount == xpos + 7) rgb_out_nxt = 12'hf_f_f;
+        else if (vcount >= ypos + 9 && vcount <= ypos + 11 && hcount == xpos + 8) rgb_out_nxt = 12'hf_f_f;
+        else if (vcount >= ypos + 10 && vcount <= ypos + 11 && hcount == xpos + 9) rgb_out_nxt = 12'hf_f_f;
+        else if (vcount == ypos + 11 && hcount == xpos + 10) rgb_out_nxt = 12'hf_f_f;
             else rgb_out_nxt = rgb_in;  
         end
     SCOPE: begin
-        if(vcount_temp2 == ypos && hcount_temp2 == xpos) rgb_out_nxt = 12'h0_0_0;
-        else if(vcount_temp2 == ypos && hcount_temp2 >= xpos + 2 && hcount_temp2 <= xpos + 4) rgb_out_nxt = 12'h0_0_0;
-        else if(vcount_temp2 >= ypos + 2 && vcount_temp2 <= ypos + 4 && hcount_temp2 == xpos) rgb_out_nxt = 12'h0_0_0;
-        else if(vcount_temp2 == ypos && hcount_temp2 == xpos - 2) rgb_out_nxt = 12'h0_0_0;
-        else if(vcount_temp2 == ypos && hcount_temp2 == xpos - 3) rgb_out_nxt = 12'h0_0_0;
-        else if(vcount_temp2 == ypos && hcount_temp2 == xpos - 4) rgb_out_nxt = 12'h0_0_0;
-        else if(vcount_temp2 == ypos -2 && hcount_temp2 == xpos) rgb_out_nxt = 12'h0_0_0;
-        else if(vcount_temp2 == ypos -3 && hcount_temp2 == xpos) rgb_out_nxt = 12'h0_0_0;
-        else if(vcount_temp2 == ypos -4 && hcount_temp2 == xpos) rgb_out_nxt = 12'h0_0_0;
+        if(vcount == ypos && hcount == xpos) rgb_out_nxt = 12'h0_0_0;
+        else if(vcount == ypos && hcount >= xpos + 2 && hcount <= xpos + 4) rgb_out_nxt = 12'h0_0_0;
+        else if(vcount >= ypos + 2 && vcount <= ypos + 4 && hcount == xpos) rgb_out_nxt = 12'h0_0_0;
+        else if(vcount == ypos && hcount == xpos - 2) rgb_out_nxt = 12'h0_0_0;
+        else if(vcount == ypos && hcount == xpos - 3) rgb_out_nxt = 12'h0_0_0;
+        else if(vcount == ypos && hcount == xpos - 4) rgb_out_nxt = 12'h0_0_0;
+        else if(vcount == ypos -2 && hcount == xpos) rgb_out_nxt = 12'h0_0_0;
+        else if(vcount == ypos -3 && hcount == xpos) rgb_out_nxt = 12'h0_0_0;
+        else if(vcount == ypos -4 && hcount == xpos) rgb_out_nxt = 12'h0_0_0;
             else rgb_out_nxt = rgb_in;
         end
     endcase

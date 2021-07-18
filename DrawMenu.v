@@ -22,9 +22,10 @@ localparam BORDERS = 12'hf_0_0;
 always @* begin
     if (vblnk_in || hblnk_in) {rgb_out_nxt} = 12'h0_0_0; 
     else begin
-        if ((vcount_in >= 0 && vcount_in <= 2) || (vcount_in >= 597 && vcount_in <= 599))      {rgb_out_nxt} = BORDERS;
-        else if ((hcount_in >= 0 && hcount_in <= 2) || (hcount_in >= 797 && hcount_in <= 799)) {rgb_out_nxt} = BORDERS;
+        if ((vcount_in >= 0 && vcount_in <= 2) || (vcount_in >= 765 && vcount_in <= 767))      {rgb_out_nxt} = BORDERS;
+        else if ((hcount_in >= 0 && hcount_in <= 2) || (hcount_in >= 1021 && hcount_in <= 1023)) {rgb_out_nxt} = BORDERS;
         else {rgb_out_nxt} = 12'h8_8_8;    
     end
 end
 endmodule
+

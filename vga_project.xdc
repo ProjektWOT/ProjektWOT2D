@@ -39,6 +39,84 @@ set_property IOSTANDARD LVCMOS33 [get_ports {b[2]}]
 set_property PACKAGE_PIN J18 [get_ports {b[3]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {b[3]}]
 
+# LEDs
+#set_property PACKAGE_PIN U16 [get_ports {LED[0]}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {LED[0]}]
+#set_property PACKAGE_PIN E19 [get_ports {LED[1]}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {LED[1]}]
+#set_property PACKAGE_PIN U19 [get_ports {LED[2]}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {LED[2]}]
+#set_property PACKAGE_PIN V19 [get_ports {LED[3]}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {LED[3]}]
+#set_property PACKAGE_PIN W18 [get_ports {LED[4]}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {LED[4]}]
+#set_property PACKAGE_PIN U15 [get_ports {LED[5]}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {LED[5]}]
+#set_property PACKAGE_PIN U14 [get_ports {LED[6]}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {LED[6]}]
+#set_property PACKAGE_PIN V14 [get_ports {LED[7]}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {LED[7]}]
+
+
+##Pmod Header JA
+##Bank = 15, Pin name = IO_L1N_T0_AD0N_15,					Sch name = JA1
+set_property PACKAGE_PIN A14 [get_ports {CS}]
+set_property IOSTANDARD LVCMOS33 [get_ports {CS}]
+##Bank = 15, Pin name = IO_L5N_T0_AD9N_15,					Sch name = JA2
+set_property PACKAGE_PIN A16 [get_ports {MOSI}]
+set_property IOSTANDARD LVCMOS33 [get_ports {MOSI}]
+##Bank = 15, Pin name = IO_L16N_T2_A27_15,					Sch name = JA3
+set_property PACKAGE_PIN B15 [get_ports {MISO}]
+set_property IOSTANDARD LVCMOS33 [get_ports {MISO}]
+##Bank = 15, Pin name = IO_L16P_T2_A28_15,					Sch name = JA4
+set_property PACKAGE_PIN B16 [get_ports {SCLK}]
+set_property IOSTANDARD LVCMOS33 [get_ports {SCLK}]
+##Bank = 15, Pin name = IO_0_15,							Sch name = JA7
+#set_property PACKAGE_PIN G13 [get_ports {JA[4]}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {JA[4]}]
+##Bank = 15, Pin name = IO_L20N_T3_A19_15,					Sch name = JA8
+#set_property PACKAGE_PIN C17 [get_ports {JA[5]}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {JA[5]}]
+##Bank = 15, Pin name = IO_L21N_T3_A17_15,					Sch name = JA9
+#set_property PACKAGE_PIN D18 [get_ports {JA[6]}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {JA[6]}]
+##Bank = 15, Pin name = IO_L21P_T3_DQS_15,					Sch name = JA10
+#set_property PACKAGE_PIN E18 [get_ports {JA[7]}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {JA[7]}]
+
+## Switches
+#set_property PACKAGE_PIN V17 [get_ports {SW[0]}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {SW[0]}]
+#set_property PACKAGE_PIN V16 [get_ports {SW[1]}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {SW[1]}]
+#set_property PACKAGE_PIN W16 [get_ports {SW[2]}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {SW[2]}]
+
+#7 segment display
+#set_property PACKAGE_PIN W7 [get_ports {SEG[0]}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {SEG[0]}]
+#set_property PACKAGE_PIN W6 [get_ports {SEG[1]}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {SEG[1]}]
+#set_property PACKAGE_PIN U8 [get_ports {SEG[2]}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {SEG[2]}]
+#set_property PACKAGE_PIN V8 [get_ports {SEG[3]}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {SEG[3]}]
+#set_property PACKAGE_PIN U5 [get_ports {SEG[4]}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {SEG[4]}]
+#set_property PACKAGE_PIN V5 [get_ports {SEG[5]}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {SEG[5]}]
+#set_property PACKAGE_PIN U7 [get_ports {SEG[6]}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {SEG[6]}]
+	
+#set_property PACKAGE_PIN U2 [get_ports {AN[0]}]					
+ #       set_property IOSTANDARD LVCMOS33 [get_ports {AN[0]}]
+ #   set_property PACKAGE_PIN U4 [get_ports {AN[1]}]                    
+ #       set_property IOSTANDARD LVCMOS33 [get_ports {AN[1]}]
+ #   set_property PACKAGE_PIN V4 [get_ports {AN[2]}]                    
+ #       set_property IOSTANDARD LVCMOS33 [get_ports {AN[2]}]
+ #   set_property PACKAGE_PIN W4 [get_ports {AN[3]}]                    
+ #       set_property IOSTANDARD LVCMOS33 [get_ports {AN[3]}]
+	
 # Constraints for PCLK_MIRROR
 set_property PACKAGE_PIN J1 [get_ports {pclk_mirror}]
 set_property IOSTANDARD LVCMOS33 [get_ports {pclk_mirror}]

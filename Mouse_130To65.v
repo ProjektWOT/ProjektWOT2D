@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module Mouse_100To40(
+module Mouse_130To65(
     input wire clk,
     input wire rst,
     input wire [11:0] B_posX,
@@ -23,3 +23,4 @@ always @(posedge clk)
 end
 
 endmodule
+

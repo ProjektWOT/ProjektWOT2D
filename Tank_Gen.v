@@ -27,10 +27,11 @@ module Tank_Gen(
     output wire [11:0] xpos_out,
     output wire  [11:0] ypos_out 
 );
-    
-wire [10:0] hcount_d;
-wire [9:0] vcount_d;
-wire hsync_d, vsync_d, hblnk_d, vblnk_d;
+
+wire [11:0] xposTank, yposTank, xpos_d, ypos_d, rgb_ctl, Address, rgb_image;
+wire [10:0] hcount_d, hcount_ctl;
+wire [9:0] vcount_d, vcount_ctl;
+wire hsync_d, vsync_d, hblnk_d, vblnk_d, hsync_ctl, vsync_ctl, hblnk_ctl, vblnk_ctl, Select_ctl;
     
 Delay Delay(
     .clk(clk),
@@ -50,8 +51,8 @@ Delay Delay(
     .vsync_out(vsync_d),
     .hblnk_out(hblnk_d),
     .vblnk_out(vblnk_d),
-    .xpos_out(xpos_out),
-    .ypos_out(ypos_out)  
+    .xpos_out(xpos_d),
+    .ypos_out(ypos_d)  
 );
     
 Control Control(
@@ -68,13 +69,59 @@ Control Control(
     .Data_in_X(Data_in_X),
     .Data_in_Y(Data_in_Y),
         
-    .Select_out(Select_out),
+    .Select_out(Select_ctl),
+    .hcount_out(hcount_ctl),
+    .vcount_out(vcount_ctl),
+    .hsync_out(hsync_ctl),
+    .vsync_out(vsync_ctl),
+    .hblnk_out(hblnk_ctl),
+    .vblnk_out(vblnk_ctl),
+    .rgb_out(rgb_ctl),
+    .xpos(xposTank),
+    .ypos(yposTank)  
+);
+
+draw_tank DrawTank(
+    .clk(clk),
+    .rst(rst),
+    .select(Select_ctl),
+    .hcount_in(hcount_ctl),
+    .vcount_in(vcount_ctl),
+    .hsync_in(hsync_ctl),
+    .vsync_in(vsync_ctl),
+    .hblnk_in(hblnk_ctl),
+    .vblnk_in(vblnk_ctl),
+    .rgb_in(rgb_ctl),
+    .rgb_pixel(rgb_image),
+    .posX(xposTank),
+    .posY(yposTank),
+    
     .hcount_out(hcount_out),
-    .vcount_out(vcount_out),
     .hsync_out(hsync_out),
-    .vsync_out(vsync_out),
     .hblnk_out(hblnk_out),
+    .vcount_out(vcount_out),
+    .vsync_out(vsync_out),
     .vblnk_out(vblnk_out),
-    .rgb_out(rgb_out)     
+    .select_out(Select_out),
+    .rgb_out(rgb_out),
+    .pixel_addr(Address)
+);
+
+image_tank ImageTank(
+    .clk(clk),
+    .address(Address),
+    
+    .rgb(rgb_image)
+);
+
+DelayForDraw DelayForDraw(
+    .clk(clk),
+    .rst(rst),
+    .xposMouse(xpos_d),
+    .yposMouse(ypos_d),
+    
+    .xpos(xpos_out),
+    .ypos(ypos_out)
 );
 endmodule
+

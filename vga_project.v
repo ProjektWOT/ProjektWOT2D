@@ -1,6 +1,6 @@
 `timescale 1 ns / 1 ps
 
-module vga_example(
+module vga_project(
     input wire MISO,
     output wire SCLK,
     output wire MOSI,
@@ -22,7 +22,6 @@ module vga_example(
 //Mirror PCLK; Reset_Module; Clk_Module
 //***********************************************//
 wire clk_100MHz, Locked, RstExt, clk_130MHz, clk_65MHz;
-
 ODDR pclk_oddr (
     .Q(pclk_mirror),
     .C(clk_65MHz),
@@ -31,7 +30,7 @@ ODDR pclk_oddr (
     .D2(1'b0),
     .R(1'b0),
     .S(1'b0)
-); 
+);
 Reset Reset(
     .locked(Locked),
     .clk(clk_65MHz),

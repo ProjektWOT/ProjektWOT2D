@@ -2,7 +2,6 @@
 
 module DelayForDraw(
     input wire clk,
-    input wire rst,
     input wire [11:0] xposMouse,
     input wire [11:0] yposMouse,
     
@@ -11,13 +10,7 @@ module DelayForDraw(
     );
     
 always @(posedge clk) begin
-    if(rst) begin
-        xpos <= xposMouse;
-        ypos <= yposMouse;
-        end
-    else begin
-        xpos <= xposMouse;
-        ypos <= yposMouse;
-        end
+    xpos <= xposMouse;
+    ypos <= yposMouse;
     end
 endmodule

@@ -17,7 +17,19 @@ reg vsync_nxt;
 reg hsync_nxt;
 reg vblnk_nxt;
 reg hblnk_nxt;
- 
+
+localparam HOR_TOTAL_TIME  = 1344;
+localparam HOR_BLANK_START = 1024;
+localparam HOR_BLANK_TIME  = 320;
+localparam HOR_SYNC_START  = 1048;
+localparam HOR_SYNC_TIME   = 136;
+
+localparam VER_TOTAL_TIME  = 806;
+localparam VER_BLANK_START = 768;
+localparam VER_BLANK_TIME  = 38;
+localparam VER_SYNC_START  = 771;
+localparam VER_SYNC_TIME   = 6;
+
 always@ (posedge clk) begin
 if (rst) begin
     hcount <= 0;
@@ -37,41 +49,39 @@ else begin
     end
 end
 
-localparam HOR_TIME = 1024;
-localparam VER_TIME = 768;
-localparam HOR_FRONT_PORCH = 24;
-localparam VER_FRONT_PORCH = 3;
-localparam HOR_SYNC_PULSE = 136;
-localparam VER_SYNC_PULSE = 6;
-localparam HOR_WHOLE = 1344;
-localparam VER_WHOLE = 806;
-
-
-always@* begin
-    // horizontal counter  
-    if (hcount == (HOR_WHOLE-1)) hcount_nxt <= 11'b0;
-        else hcount_nxt <= hcount + 1;
-    // vertical counter
-    if (hcount == (HOR_WHOLE-1) && vcount == (VER_WHOLE-1)) vcount_nxt <= 11'b0;
-    else if (hcount == (HOR_WHOLE-1)) vcount_nxt <= vcount + 1;
-        else vcount_nxt <= vcount;
-              
-    // Synchronization time                
-    if (hcount >= (HOR_TIME+HOR_FRONT_PORCH - 1) && hcount <= (HOR_TIME+HOR_FRONT_PORCH+HOR_SYNC_PULSE-2)) hsync_nxt <= 1;
-        else hsync_nxt <= 0;
-    if (vcount == (VER_TIME) && hcount == (HOR_WHOLE-1)) vsync_nxt <= 1;
-    else if (vcount >= (VER_TIME+VER_FRONT_PORCH) && vcount <= (VER_TIME+VER_SYNC_PULSE-1)) vsync_nxt <= 1;
-    else if (vcount == (VER_TIME+VER_SYNC_PULSE) && hcount <= (HOR_WHOLE-2)) vsync_nxt <= 1;
-    else if (vcount == (VER_TIME+VER_SYNC_PULSE) && hcount == (HOR_WHOLE-1)) vsync_nxt <= 0;
-        else vsync_nxt <= 0;
-                        
-    // Blank spaces
-    if (hcount >= (HOR_TIME-1) && hcount <= (HOR_WHOLE-2)) hblnk_nxt <= 1;
-        else hblnk_nxt <= 0;
-    if (vcount == (VER_TIME-1) && hcount == (HOR_WHOLE-1)) vblnk_nxt <= 1;
-    else if (vcount >= (VER_TIME) && vcount <= ((VER_WHOLE-2))) vblnk_nxt <= 1;
-    else if (vcount == (VER_WHOLE-1) && hcount <= (HOR_WHOLE-2)) vblnk_nxt <= 1;
-    else if (vcount == (VER_WHOLE-1) && hcount == (HOR_WHOLE-1)) vblnk_nxt <= 0;
-        else vblnk_nxt <= 0;
-    end
+ always@* begin 
+        if (hcount == HOR_TOTAL_TIME - 1) 
+            hcount_nxt = 0;
+        else 
+            hcount_nxt = hcount + 1;
+        if (hcount == HOR_TOTAL_TIME - 1 && vcount == VER_TOTAL_TIME - 1) 
+            vcount_nxt = 0;
+        else if (hcount == HOR_TOTAL_TIME - 1) 
+            vcount_nxt = vcount + 1;
+        else 
+            vcount_nxt = vcount;
+                
+        if (hcount + 1 >= HOR_SYNC_START && hcount + 1 < HOR_SYNC_START + HOR_SYNC_TIME) 
+            hsync_nxt = 1;
+        else 
+            hsync_nxt = 0;
+        if (vcount == VER_SYNC_START - 1 && hcount == HOR_TOTAL_TIME - 1||(vcount >= VER_SYNC_START && vcount <= VER_SYNC_START + VER_SYNC_TIME - 2)||(vcount == VER_SYNC_START + VER_SYNC_TIME -1 && hcount < HOR_TOTAL_TIME -1)) 
+            vsync_nxt = 1;
+        else if (vcount == VER_SYNC_START + VER_SYNC_TIME - 1 && hcount == HOR_TOTAL_TIME -1)
+            vsync_nxt = 0; 
+        else 
+            vsync_nxt = 0; 
+                                
+        if (hcount + 1 >= HOR_BLANK_START && hcount + 1 < HOR_BLANK_START + HOR_BLANK_TIME) 
+            hblnk_nxt = 1;
+        else 
+            hblnk_nxt = 0;
+        if ((vcount == VER_BLANK_START - 1 && hcount == HOR_TOTAL_TIME - 1)||(vcount >= VER_BLANK_START && vcount <= VER_BLANK_START + VER_BLANK_TIME - 2)||(vcount == VER_BLANK_START + VER_BLANK_TIME - 1 && hcount < HOR_TOTAL_TIME -1)) 
+            vblnk_nxt = 1;
+        else if (vcount == VER_BLANK_START + VER_BLANK_TIME - 1 && hcount == HOR_TOTAL_TIME - 1)
+            vblnk_nxt = 0;
+        else 
+            vblnk_nxt = 0;
+                                           
+ end
 endmodule

@@ -46,14 +46,14 @@ clk_wiz_0 Clock(
 );
 //***********************************************//
 
-wire [11:0] rgb_out_map, rgb_out_menu, rgb_out_Base, rgb_OUT, rgb_tank;
-wire [10:0] hcount_out_tim, hcount_out_Base, hcount_tank;
-wire [9:0]  vcount_out_tim, vcount_out_Base, vcount_tank;
-wire vsync_out_tim, hsync_out_tim, vsync_out_Base, hsync_out_Base, vsync_OUT, hsync_OUT, hsync_tank, vsync_tank;
-wire vblnk_out_tim, hblnk_out_tim, vblnk_out_Base, hblnk_out_Base, hblnk_tank, vblnk_tank;
+wire [11:0] rgb_out_map, rgb_out_menu, rgb_out_Base, rgb_OUT, rgb_tank, rgb_out_gui, rgb_tank_op;
+wire [10:0] hcount_out_tim, hcount_out_Base, hcount_tank, hcount_out_gui, hcount_tank_op;
+wire [9:0]  vcount_out_tim, vcount_out_Base, vcount_tank, vcount_out_gui, vcount_tank_op;
+wire vsync_out_tim, hsync_out_tim, vsync_out_Base, hsync_out_Base, vsync_OUT, hsync_OUT, hsync_tank, vsync_tank, hsync_out_gui, vsync_out_gui, hsync_tank_op, vsync_tank_op;
+wire vblnk_out_tim, hblnk_out_tim, vblnk_out_Base, hblnk_out_Base, hblnk_tank, vblnk_tank, hblnk_out_gui, vblnk_out_gui, hblnk_tank_op, vblnk_tank_op;
 
-wire [11:0] posX_65Mhz, posY_65Mhz, Out_posX_130MHz, Out_posY_130MHz, xpos_out_Base, ypos_out_Base, xpos_tank, ypos_tank;
-wire ButtonLeft, SelectMode, SelectTank;
+wire [11:0] posX_65Mhz, posY_65Mhz, Out_posX_130MHz, Out_posY_130MHz, xpos_out_Base, ypos_out_Base, xpos_tank, ypos_tank, xpos_tank_op, ypos_tank_op;
+wire ButtonLeft, SelectMode, SelectTank, SelectMode_op;
 
 wire [9:0] Data_Jstk_X, Data_Jstk_Y;
 wire [7:0] data_MISO;
@@ -81,27 +81,26 @@ vga_timing Timing (
     .hsync(hsync_out_tim),
     .hblnk(hblnk_out_tim)
     );
-
-Draw_Map Mapa(
-    .hcount_in(hcount_out_tim),
-    .vcount_in(vcount_out_tim),
-    .hblnk_in(hblnk_out_tim),
-    .vblnk_in(vblnk_out_tim),
-    .clk(clk_65MHz),
-    .rst(RstExt),
-
-    .rgb_out(rgb_out_map)
-    );
-DrawMenu Menu(
-    .hcount_in(hcount_out_tim),
-    .vcount_in(vcount_out_tim),
-    .hblnk_in(hblnk_out_tim),
-    .vblnk_in(vblnk_out_tim),
-    .clk(clk_65MHz),
-    .rst(RstExt),
     
-    .rgb_out(rgb_out_menu)
-    );
+GUI GUI(
+    .clk(clk_65MHz),
+    .rst(RstExt),
+    .hcount_in(hcount_out_tim),
+    .vcount_in(vcount_out_tim),
+    .hblnk_in(hblnk_out_tim),
+    .vblnk_in(vblnk_out_tim),
+    .hsync_in(hsync_out_tim),
+    .vsync_in(vsync_out_tim),
+    
+    .hcount_out(hcount_out_gui),
+    .vcount_out(vcount_out_gui),
+    .hblnk_out(hblnk_out_gui),
+    .vblnk_out(vblnk_out_gui),
+    .hsync_out(hsync_out_gui),
+    .vsync_out(vsync_out_gui),
+    .rgb_out_map(rgb_out_map),
+    .rgb_out_menu(rgb_out_menu)
+);
 
 BaseControl BaseControl(
     .clk(clk_65MHz),
@@ -177,16 +176,16 @@ MouseImage Cursor(
 Tank_Gen Tank_Gen(
     .clk(clk_65MHz),
     .rst(RstExt),
-    .xpos(xpos_out_Base),
-    .ypos(ypos_out_Base),
-    .hcount(hcount_out_tim),
-    .vcount(vcount_out_tim),
-    .hblnk(hblnk_out_tim),
-    .vblnk(vblnk_out_tim),
-    .hsync(hsync_out_tim),
-    .vsync(vsync_out_tim),
-    .rgb_in(rgb_out_Base),
-    .SelectMode(SelectMode),
+    .xpos(xpos_tank_op),
+    .ypos(ypos_tank_op),
+    .hcount(hcount_tank_op),
+    .vcount(vcount_tank_op),
+    .hblnk(hblnk_tank_op),
+    .vblnk(vblnk_tank_op),
+    .hsync(hsync_tank_op),
+    .vsync(vsync_tank_op),
+    .rgb_in(rgb_tank_op),
+    .SelectMode(SelectMode_op),
     .Data_in_X(Data_Jstk_X),
     .Data_in_Y(Data_Jstk_Y),
        
@@ -200,6 +199,34 @@ Tank_Gen Tank_Gen(
     .Select_out(SelectTank),
     .xpos_out(xpos_tank),
     .ypos_out(ypos_tank)
+    );
+
+Tank_Oponent Tank_Oponent(
+    .clk(clk_65MHz),
+    .rst(RstExt),
+    .xpos(xpos_out_Base),
+    .ypos(ypos_out_Base),
+    .hcount(hcount_out_gui),
+    .vcount(vcount_out_gui),
+    .hblnk(hblnk_out_gui),
+    .vblnk(vblnk_out_gui),
+    .hsync(hsync_out_gui),
+    .vsync(vsync_out_gui),
+    .rgb_in(rgb_out_Base),
+    .SelectMode(SelectMode),
+    .Data_in_X(500),
+    .Data_in_Y(500),
+       
+    .hsync_out(hsync_tank_op),
+    .vsync_out(vsync_tank_op),
+    .hblnk_out(hblnk_tank_op),
+    .vblnk_out(vblnk_tank_op),
+    .hcount_out(hcount_tank_op),
+    .vcount_out(vcount_tank_op),
+    .rgb_out(rgb_tank_op),
+    .Select_out(SelectMode_op),
+    .xpos_out(xpos_tank_op),
+    .ypos_out(ypos_tank_op)
     );
 //***********************************************//
 

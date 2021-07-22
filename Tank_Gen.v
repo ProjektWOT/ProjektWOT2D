@@ -29,28 +29,28 @@ module Tank_Gen(
 );
 
 wire [11:0] xposTank, yposTank, xpos_d, ypos_d, rgb_ctl, Address, rgb_image;
-wire [10:0] hcount_d, hcount_ctl;
-wire [9:0] vcount_d, vcount_ctl;
-wire hsync_d, vsync_d, hblnk_d, vblnk_d, hsync_ctl, vsync_ctl, hblnk_ctl, vblnk_ctl, Select_ctl;
+wire [10:0]  hcount_ctl; //, hcount_d;
+wire [9:0]  vcount_ctl; //, vcount_d;
+wire hsync_ctl, vsync_ctl, hblnk_ctl, vblnk_ctl, Select_ctl; //, hsync_d, vsync_d, hblnk_d, vblnk_d;
     
 Delay Delay(
     .clk(clk),
     .rst(rst),
     .xpos(xpos),
     .ypos(ypos),
-    .hcount(hcount),
-    .vcount(vcount),
-    .hblnk(hblnk),
-    .vblnk(vblnk),
-    .hsync(hsync),
-    .vsync(vsync),
+    //.hcount(hcount),
+    //.vcount(vcount),
+    //.hblnk(hblnk),
+    //.vblnk(vblnk),
+    //.hsync(hsync),
+    //.vsync(vsync),
         
-    .hcount_out(hcount_d),
-    .vcount_out(vcount_d),
-    .hsync_out(hsync_d),
-    .vsync_out(vsync_d),
-    .hblnk_out(hblnk_d),
-    .vblnk_out(vblnk_d),
+    //.hcount_out(hcount_d),
+    //.vcount_out(vcount_d),
+    //.hsync_out(hsync_d),
+    //.vsync_out(vsync_d),
+    //.hblnk_out(hblnk_d),
+    //.vblnk_out(vblnk_d),
     .xpos_out(xpos_d),
     .ypos_out(ypos_d)  
 );
@@ -59,12 +59,12 @@ Control Control(
     .clk(clk),
     .rst(rst),
     .SelectMode(SelectMode),
-    .hcount(hcount_d),
-    .vcount(vcount_d),
-    .hblnk(hblnk_d),
-    .vblnk(vblnk_d),
-    .hsync(hsync_d),
-    .vsync(vsync_d),
+    .hcount(hcount),
+    .vcount(vcount),
+    .hblnk(hblnk),
+    .vblnk(vblnk),
+    .hsync(hsync),
+    .vsync(vsync),
     .rgb_in(rgb_in),
     .Data_in_X(Data_in_X),
     .Data_in_Y(Data_in_Y),
@@ -116,7 +116,6 @@ image_tank ImageTank(
 
 DelayForDraw DelayForDraw(
     .clk(clk),
-    .rst(rst),
     .xposMouse(xpos_d),
     .yposMouse(ypos_d),
     
@@ -124,4 +123,3 @@ DelayForDraw DelayForDraw(
     .ypos(ypos_out)
 );
 endmodule
-

@@ -56,11 +56,11 @@ end
 always @* begin
     case(State)
         MOUSE: begin
-            if(SelectMode == 1 && xpos < 600) State_nxt = SCOPE;
+            if(SelectMode == 1 && xpos < 768) State_nxt = SCOPE;
             else State_nxt = MOUSE;
             end
         SCOPE: begin
-            if(SelectMode == 1 && xpos < 600) State_nxt = SCOPE;
+            if(SelectMode == 1 && xpos < 768) State_nxt = SCOPE;
             else State_nxt = MOUSE;
             end
         endcase
@@ -103,7 +103,7 @@ always @* begin
         else if (vcount >= ypos + 9 && vcount <= ypos + 11 && hcount == xpos + 8) rgb_out_nxt = 12'hf_f_f;
         else if (vcount >= ypos + 10 && vcount <= ypos + 11 && hcount == xpos + 9) rgb_out_nxt = 12'hf_f_f;
         else if (vcount == ypos + 11 && hcount == xpos + 10) rgb_out_nxt = 12'hf_f_f;
-            else rgb_out_nxt = rgb_in;  
+        else rgb_out_nxt = rgb_in;  
         end
     SCOPE: begin
         if(vcount == ypos && hcount == xpos) rgb_out_nxt = 12'h0_0_0;
@@ -115,7 +115,7 @@ always @* begin
         else if(vcount == ypos -2 && hcount == xpos) rgb_out_nxt = 12'h0_0_0;
         else if(vcount == ypos -3 && hcount == xpos) rgb_out_nxt = 12'h0_0_0;
         else if(vcount == ypos -4 && hcount == xpos) rgb_out_nxt = 12'h0_0_0;
-            else rgb_out_nxt = rgb_in;
+        else rgb_out_nxt = rgb_in;
         end
     endcase
     end

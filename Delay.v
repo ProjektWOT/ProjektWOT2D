@@ -2,7 +2,7 @@
 
 module Delay(
     input wire clk,
-    input wire rst,
+
     input wire [11:0] xpos,
     input wire [11:0] ypos,
     
@@ -13,6 +13,5 @@ module Delay(
     always@(posedge clk) begin
             xpos_out <= xpos;
             ypos_out <= ypos;
-    end
+        end
 endmodule
-

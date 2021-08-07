@@ -8,19 +8,24 @@ module vga_project(
 
     input wire clk,
     input wire rst,
+    input wire UART_RXD,
+    
+    output wire UART_TXD,
     output wire vs,
     output wire hs,
     output wire [3:0] r,
     output wire [3:0] g,
     output wire [3:0] b,
     output wire pclk_mirror,
+    output wire [7:0] SEG,
+    output wire [3:0] AN,
     
     inout wire ps2_clk,
     inout wire ps2_data
 );
 
 //Mirror PCLK; Reset_Module; Clk_Module
-//***********************************************//
+//****************************************************************************************************************//
 wire clk_100MHz, Locked, RstExt, clk_130MHz, clk_65MHz;
 ODDR pclk_oddr (
     .Q(pclk_mirror),
@@ -44,20 +49,36 @@ clk_wiz_0 Clock(
     .clk130MHz(clk_130MHz),
     .locked(Locked)
 );
-//***********************************************//
+//****************************************************************************************************************//
 
-wire [11:0] rgb_out_map, rgb_out_menu, rgb_out_Base, rgb_OUT, rgb_tank, rgb_out_gui, rgb_tank_op;
-wire [10:0] hcount_out_tim, hcount_out_Base, hcount_tank, hcount_out_gui, hcount_tank_op;
-wire [9:0]  vcount_out_tim, vcount_out_Base, vcount_tank, vcount_out_gui, vcount_tank_op;
-wire vsync_out_tim, hsync_out_tim, vsync_out_Base, hsync_out_Base, vsync_OUT, hsync_OUT, hsync_tank, vsync_tank, hsync_out_gui, vsync_out_gui, hsync_tank_op, vsync_tank_op;
-wire vblnk_out_tim, hblnk_out_tim, vblnk_out_Base, hblnk_out_Base, hblnk_tank, vblnk_tank, hblnk_out_gui, vblnk_out_gui, hblnk_tank_op, vblnk_tank_op;
-
-wire [11:0] posX_65Mhz, posY_65Mhz, Out_posX_130MHz, Out_posY_130MHz, xpos_out_Base, ypos_out_Base, xpos_tank, ypos_tank, xpos_tank_op, ypos_tank_op;
-wire ButtonLeft, SelectMode, SelectTank, SelectMode_op;
-
+//UART; Joystick
+//****************************************************************************************************************//
 wire [9:0] Data_Jstk_X, Data_Jstk_Y;
-wire [7:0] data_MISO;
+wire [15:0] X_tank_pos, Y_tank_pos;
 
+uart Uart(
+    .clk(clk_65MHz),
+    .reset(RstExt),
+    .X_POS_IN(Data_Jstk_X),
+    .Y_POS_IN(Data_Jstk_Y),
+    .rx(UART_RXD),
+    
+    .tx(UART_TXD),
+    .X_tank_pos(X_tank_pos),
+    .Y_tank_pos(Y_tank_pos)
+    );
+disp_hex_mux DisplayHexMux(
+    .clk(clk_65MHz),
+    .reset(RstExt),             //Dla nadajnika
+    .hex0(X_tank_pos[3:0]),   //Data_Jstk_X[3:0]
+    .hex1(X_tank_pos[7:4]),   //Data_Jstk_X[7:4]
+    .hex2(X_tank_pos[11:8]),  //{2'b0000,Data_Jstk_X[9:8]}
+    .hex3(X_tank_pos[15:12]), //4'b0000
+    .dp_in(~4'b0000),
+    
+    .an(AN),
+    .sseg(SEG)
+    );
 PMOD_JOYSTICK Joystick(
     .clk(clk_130MHz),
     .reset(RstExt),
@@ -69,7 +90,19 @@ PMOD_JOYSTICK Joystick(
     .Data_out_X(Data_Jstk_X),
     .Data_out_Y(Data_Jstk_Y)
     );
+//****************************************************************************************************************//
 
+wire [11:0] rgb_out_map, rgb_out_menu, rgb_out_Base, rgb_OUT, rgb_tank, rgb_out_gui, rgb_tank_op;
+wire [10:0] hcount_out_tim, hcount_out_Base, hcount_tank, hcount_out_gui, hcount_tank_op;
+wire [9:0]  vcount_out_tim, vcount_out_Base, vcount_tank, vcount_out_gui, vcount_tank_op;
+wire vsync_out_tim, hsync_out_tim, vsync_out_Base, hsync_out_Base, vsync_OUT, hsync_OUT, hsync_tank, vsync_tank, hsync_out_gui, vsync_out_gui, hsync_tank_op, vsync_tank_op;
+wire vblnk_out_tim, hblnk_out_tim, vblnk_out_Base, hblnk_out_Base, hblnk_tank, vblnk_tank, hblnk_out_gui, vblnk_out_gui, hblnk_tank_op, vblnk_tank_op;
+
+wire [11:0] posX_65Mhz, posY_65Mhz, Out_posX_130MHz, Out_posY_130MHz, xpos_out_Base, ypos_out_Base, xpos_tank, ypos_tank, xpos_tank_op, ypos_tank_op;
+wire ButtonLeft, SelectMode, SelectTank, SelectMode_op;
+
+//Timing
+//****************************************************************************************************************//
 vga_timing Timing (
     .clk(clk_65MHz),
     .rst(RstExt),
@@ -81,7 +114,10 @@ vga_timing Timing (
     .hsync(hsync_out_tim),
     .hblnk(hblnk_out_tim)
     );
-    
+//****************************************************************************************************************//
+
+//Control
+//****************************************************************************************************************//
 GUI GUI(
     .clk(clk_65MHz),
     .rst(RstExt),
@@ -101,7 +137,6 @@ GUI GUI(
     .rgb_out_map(rgb_out_map),
     .rgb_out_menu(rgb_out_menu)
 );
-
 BaseControl BaseControl(
     .clk(clk_65MHz),
     .rst(RstExt),
@@ -116,10 +151,10 @@ BaseControl BaseControl(
     .rgb(rgb_out_Base),
     .Select(SelectMode)
     );
+//****************************************************************************************************************//
 
-//***********************************************//
 //Mouse
-
+//****************************************************************************************************************//
 MouseCtl MyMouse(
     .clk(clk_130MHz),
     .rst(RstExt),
@@ -172,7 +207,10 @@ MouseImage Cursor(
     .vcount_out(),
     .rgb_out(rgb_OUT)
     );
-    
+//****************************************************************************************************************//
+
+//TanksImages
+//****************************************************************************************************************//  
 Tank_Gen Tank_Gen(
     .clk(clk_65MHz),
     .rst(RstExt),
@@ -200,7 +238,6 @@ Tank_Gen Tank_Gen(
     .xpos_out(xpos_tank),
     .ypos_out(ypos_tank)
     );
-
 Tank_Oponent Tank_Oponent(
     .clk(clk_65MHz),
     .rst(RstExt),
@@ -214,8 +251,8 @@ Tank_Oponent Tank_Oponent(
     .vsync(vsync_out_gui),
     .rgb_in(rgb_out_Base),
     .SelectMode(SelectMode),
-    .Data_in_X(500),
-    .Data_in_Y(500),
+    .Data_in_X(X_tank_pos[9:0]),
+    .Data_in_Y(Y_tank_pos[9:0]),
        
     .hsync_out(hsync_tank_op),
     .vsync_out(vsync_tank_op),
@@ -228,9 +265,10 @@ Tank_Oponent Tank_Oponent(
     .xpos_out(xpos_tank_op),
     .ypos_out(ypos_tank_op)
     );
-//***********************************************//
+//****************************************************************************************************************//
 
 //Assigns
+//****************************************************************************************************************//
 assign hs = hsync_OUT;
 assign vs = vsync_OUT; 
 assign r = rgb_OUT[11:8];

@@ -35,7 +35,7 @@ wire hsync_ctl, vsync_ctl, hblnk_ctl, vblnk_ctl, Select_ctl; //, hsync_d, vsync_
     
 Delay Delay(
     .clk(clk),
-    .rst(rst),
+    //.rst(rst),
     .xpos(xpos),
     .ypos(ypos),
     //.hcount(hcount),

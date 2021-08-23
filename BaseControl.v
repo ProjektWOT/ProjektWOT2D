@@ -53,7 +53,7 @@ always @* begin
 always @* begin
     case(State)
     MENU: begin
-        if(ypos >= 0 && ypos <= 299 && ButtonLeft == 1) begin
+        if(ypos >= 320 && ypos <= 350 && xpos >= 500 && xpos <= 560 && ButtonLeft == 1) begin
             Select_nxt = 1;
             rgb_nxt <= rgbMapa;
             end
@@ -63,7 +63,7 @@ always @* begin
             end
         end
     MAPA: begin
-        if(ypos >= 300 && ypos <= 600 && ButtonLeft == 1) begin 
+        if(ypos >= 10 && ypos <= 30 && xpos >= 993 && xpos <= 1013 && ButtonLeft == 1) begin 
             Select_nxt = 0;
             rgb_nxt <= rgbMenu;
             end

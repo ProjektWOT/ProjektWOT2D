@@ -53,27 +53,27 @@ clk_wiz_0 Clock(
 
 //UART; Joystick
 //****************************************************************************************************************//
-wire [9:0] Data_Jstk_X, Data_Jstk_Y;
-wire [15:0] X_tank_pos, Y_tank_pos;
+wire [9:0] Data_Jstk_X, Data_Jstk_Y, xpos_tank_uart_out, ypos_tank_uart_out;
+wire [15:0] XPosTankUart, YPosTankUart;
 
 uart Uart(
     .clk(clk_65MHz),
     .reset(RstExt),
-    .X_POS_IN(Data_Jstk_X),
-    .Y_POS_IN(Data_Jstk_Y),
+    .XPosInTank(xpos_tank_uart_out),
+    .YPosInTank(ypos_tank_uart_out),
     .rx(UART_RXD),
     
     .tx(UART_TXD),
-    .X_tank_pos(X_tank_pos),
-    .Y_tank_pos(Y_tank_pos)
+    .X_tank_pos(XPosTankUart),
+    .Y_tank_pos(YPosTankUart)
     );
 disp_hex_mux DisplayHexMux(
     .clk(clk_65MHz),
     .reset(RstExt),             //Dla nadajnika
-    .hex0(X_tank_pos[3:0]),   //Data_Jstk_X[3:0]
-    .hex1(X_tank_pos[7:4]),   //Data_Jstk_X[7:4]
-    .hex2(X_tank_pos[11:8]),  //{2'b0000,Data_Jstk_X[9:8]}
-    .hex3(X_tank_pos[15:12]), //4'b0000
+    .hex0(XPosTankUart[3:0]),   //Data_Jstk_X[3:0]
+    .hex1(XPosTankUart[7:4]),   //Data_Jstk_X[7:4]
+    .hex2(XPosTankUart[11:8]),  //{2'b0000,Data_Jstk_X[9:8]}
+    .hex3(XPosTankUart[15:12]), //4'b0000
     .dp_in(~4'b0000),
     
     .an(AN),
@@ -226,6 +226,9 @@ Tank_Gen Tank_Gen(
     .SelectMode(SelectMode_op),
     .Data_in_X(Data_Jstk_X),
     .Data_in_Y(Data_Jstk_Y),
+    .Data_X_op(XPosTankUart[9:0]),
+    .Data_Y_op(YPosTankUart[9:0]),
+    .left_click(ButtonLeft),
        
     .hsync_out(hsync_tank),
     .vsync_out(vsync_tank),
@@ -236,7 +239,9 @@ Tank_Gen Tank_Gen(
     .rgb_out(rgb_tank),
     .Select_out(SelectTank),
     .xpos_out(xpos_tank),
-    .ypos_out(ypos_tank)
+    .ypos_out(ypos_tank),
+    .xpos_UART(xpos_tank_uart_out),
+    .ypos_UART(ypos_tank_uart_out)
     );
 Tank_Oponent Tank_Oponent(
     .clk(clk_65MHz),
@@ -251,8 +256,8 @@ Tank_Oponent Tank_Oponent(
     .vsync(vsync_out_gui),
     .rgb_in(rgb_out_Base),
     .SelectMode(SelectMode),
-    .Data_in_X(X_tank_pos[9:0]),
-    .Data_in_Y(Y_tank_pos[9:0]),
+    .Data_in_X(XPosTankUart[9:0]), //Uart_XPosTank
+    .Data_in_Y(YPosTankUart[9:0]), //Uart_YPosTank
        
     .hsync_out(hsync_tank_op),
     .vsync_out(vsync_tank_op),

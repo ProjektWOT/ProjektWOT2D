@@ -10,8 +10,8 @@ module draw_tank_op(
     input wire vsync_in,
     input wire hblnk_in,
     input wire vblnk_in,
-    input wire [11:0] posX,
-    input wire [11:0] posY,
+    input wire [9:0] posX,
+    input wire [9:0] posY,
     input wire [11:0] rgb_in,
     input wire [11:0] rgb_pixel,
     

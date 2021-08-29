@@ -32,7 +32,10 @@ module Gun_ctrl(
     output reg [11:0] ypos_m_out,
     output reg tank_central_hit,
     output reg [9:0] xpos_bullet_green,
-    output reg [9:0] ypos_bullet_green
+    output reg [9:0] ypos_bullet_green,
+    output reg [2:0] direction_for_enemy,
+    output reg [7:0] Secounds,
+    output wire [7:0] Milis
 );
 
 reg [11:0] rgb_nxt;
@@ -40,9 +43,15 @@ reg [16:0] counter,  counter_nxt;
 reg [10:0] pos_bullet, pos_bullet_nxt;
 reg [9:0] xpos_block, ypos_block, xpos_block_nxt, ypos_block_nxt;
 reg [9:0] xpos_bullet_green_nxt, ypos_bullet_green_nxt;
+reg [2:0] direction_for_enemy_nxt;
 reg tank_central_hit_nxt;
+reg ReloadTime, ReloadTime_nxt;
+reg [3:0] Milis10, Milis10_nxt, Milis100, Milis100_nxt;
+reg [7:0] Secounds_nxt;
+reg [19:0] CounterTime, CounterTime_nxt;
 localparam DELAY = 130000;
 localparam RELOAD = 195000000; //195 000 000
+localparam TEN_milis = 650000; //650 000
 
 localparam LOWER_LIMIT = 768;
 localparam UPPER_LIMIT = 2;
@@ -67,7 +76,7 @@ always@(posedge clk) begin
         xpos_block <= xpos_t;
         ypos_block <= ypos_t;
         state <= IDLE;
-        {counter, tank_central_hit, xpos_bullet_green, ypos_bullet_green} <= 0;
+        {counter, tank_central_hit, xpos_bullet_green, ypos_bullet_green, direction_for_enemy, ReloadTime, Milis10, Milis100, CounterTime, Secounds} <= 0;
     end
     else begin
         select_out <= select;
@@ -88,9 +97,42 @@ always@(posedge clk) begin
         xpos_bullet_green <= xpos_bullet_green_nxt;
         ypos_bullet_green <= ypos_bullet_green_nxt;
         tank_central_hit <= tank_central_hit_nxt;
+        direction_for_enemy <= direction_for_enemy_nxt;
+        ReloadTime <= ReloadTime_nxt;
+        Milis10 <= Milis10_nxt;
+        Milis100 <= Milis100_nxt;
+        Secounds <= Secounds_nxt;
+        CounterTime <= CounterTime_nxt;
+        
+        if(ReloadTime == 0 && select == 1 && left_click == 1) ReloadTime_nxt = 1;
+        else if (ReloadTime  == 1) begin
+            if(CounterTime == TEN_milis && Milis10 < 10) begin
+                Milis10_nxt = Milis10 + 1;
+                CounterTime = 0;
+                end
+            else if(Milis10 == 10 && Milis100 < 10) begin
+                Milis10 = 0;
+                Milis100_nxt = Milis100 + 1;
+                end
+            else if (Milis10 == 10 && Milis100 == 10) begin
+                Milis100_nxt = 0;
+                Milis10_nxt = 0;
+                Secounds_nxt = Secounds + 1;
+                end
+            else CounterTime_nxt = CounterTime + 1;
+            end
+        else if (Secounds == 5) begin
+            Milis100_nxt = 0;
+            Milis10_nxt = 0;
+            ReloadTime_nxt = 0;
+            Secounds = 0;
+            end
+        else ReloadTime_nxt = ReloadTime;
+        end
     end
-end
-
+  
+assign Milis = {Milis10, Milis100};
+   
 always@* begin
     state_nxt = state;
     pos_bullet_nxt = pos_bullet;
@@ -101,9 +143,11 @@ always@* begin
     tank_central_hit_nxt = tank_central_hit;
     xpos_bullet_green_nxt = xpos_bullet_green;
     ypos_bullet_green_nxt = ypos_bullet_green;
+    direction_for_enemy_nxt = direction_for_enemy;
+    
     case(state)
     IDLE: begin
-        if(select == 1 && left_click == 1) begin
+        if(select == 1 && left_click == 1 && ReloadTime == 0) begin
             state_nxt = SHOT_0 + direction_bullet;
             tank_central_hit_nxt = 0;
             xpos_block_nxt = xpos_t;
@@ -113,6 +157,7 @@ always@* begin
             xpos_bullet_green_nxt = 0;
             ypos_bullet_green_nxt = 0;
             rgb_nxt = rgb;
+            direction_for_enemy_nxt = 0;
         end
         else begin
             counter_nxt = 0;
@@ -124,6 +169,7 @@ always@* begin
             ypos_block_nxt = ypos_t;
             xpos_bullet_green_nxt = 0;
             ypos_bullet_green_nxt = 0;
+            direction_for_enemy_nxt = 0;
             end
         end
     SHOT_0: begin
@@ -142,12 +188,13 @@ always@* begin
         else rgb_nxt = rgb;
         xpos_bullet_green_nxt = xpos_block+24;
         ypos_bullet_green_nxt = ypos_block - pos_bullet;
+        direction_for_enemy_nxt = 1;
         end
     SHOT_1: begin
         if (counter == DELAY) begin 
             counter_nxt = 0;
             pos_bullet_nxt = pos_bullet + 1;
-        end
+            end
         else begin
             counter_nxt = counter + 1;
             pos_bullet_nxt = pos_bullet;
@@ -159,12 +206,13 @@ always@* begin
         else rgb_nxt = rgb;
         xpos_bullet_green_nxt = xpos_block+24;
         ypos_bullet_green_nxt = ypos_block + pos_bullet;
+        direction_for_enemy_nxt = 2;
         end
     SHOT_2: begin
         if (counter == DELAY) begin 
             counter_nxt = 0;
             pos_bullet_nxt = pos_bullet + 1;
-        end
+            end
         else begin
             counter_nxt = counter + 1;
             pos_bullet_nxt = pos_bullet;
@@ -176,16 +224,17 @@ always@* begin
         else rgb_nxt = rgb;
         xpos_bullet_green_nxt = xpos_block+pos_bullet;
         ypos_bullet_green_nxt = ypos_block+24;
+        direction_for_enemy_nxt = 3;
         end 
     SHOT_3: begin
         if (counter == DELAY) begin 
             counter_nxt = 0;
             pos_bullet_nxt = pos_bullet + 1;
-        end
+            end
         else begin
             counter_nxt = counter + 1;
             pos_bullet_nxt = pos_bullet;
-        end
+            end
         
         if (xpos_block - pos_bullet -5 <= LEFT__LIMIT) begin state_nxt = IDLE; rgb_nxt = rgb; end
         else if((xpos_block-pos_bullet-48 <= xpos_t_op)&&(ypos_block + 24 >= ypos_t_op)&&(ypos_block-24 <= ypos_t_op)) begin state_nxt = HIT_TANK; rgb_nxt = rgb; end
@@ -193,6 +242,7 @@ always@* begin
         else rgb_nxt = rgb;
         xpos_bullet_green_nxt = xpos_block-pos_bullet;
         ypos_bullet_green_nxt = ypos_block+24;
+        direction_for_enemy_nxt = 4;
         end
     HIT_TANK: begin
         state_nxt = IDLE;
@@ -200,6 +250,7 @@ always@* begin
         rgb_nxt = rgb;
         xpos_bullet_green_nxt = 0;
         ypos_bullet_green_nxt = 0;
+        direction_for_enemy_nxt = 0;
     end
     default: begin state_nxt = IDLE; rgb_nxt=rgb; end
     endcase

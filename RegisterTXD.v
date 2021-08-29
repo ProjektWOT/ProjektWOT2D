@@ -5,6 +5,14 @@ module RegisterTXD(
     input wire rst,
     input wire [9:0] XPosTankIn,
     input wire [9:0] YPosTankIn,
+    input wire [9:0] xpos_bullet_green_toUART,
+    input wire [9:0] ypos_bullet_green_toUART,
+    input wire [2:0] direction_for_enemy_toUART,
+    input wire tank_our_hit_toUART,
+    input wire [1:0] direction_tank_to_UART,
+    input wire select_mode_to_UART,
+    input wire [7:0] HP_our_state_toUART,
+    
     output reg [7:0] DataPosOut,
     output reg TX_start
     );
@@ -14,20 +22,26 @@ module RegisterTXD(
 reg tx_start_nxt;
 reg [9:0] HoldData_nxt, HoldData;
 reg [7:0] DataPosOut_nxt;
-reg [2:0] StepCounter, StepCounter_nxt;
+reg [3:0] StepCounter, StepCounter_nxt;
 reg [14:0] counter, counter_nxt;
 
-reg [2:0] state, state_nxt;
-localparam DELAY = 20000; // Transmittion time ~ 261[us] = ((1/38400)*10bit)[s]
-localparam IDLE = 3'b111;
-localparam StartTXD = 3'b000;
-localparam Transmit = 3'b001;
-localparam PreStart = 3'b010;
-localparam Data1_Part1 = 3'b011;
-localparam Data1_Part2 = 3'b100;
-localparam Data2_Part1 = 3'b101;
-localparam Data2_Part2 = 3'b110;
+reg [3:0] state, state_nxt;
+localparam DELAY = 30000; // Transmittion time ~ 261[us] = ((1/38400)*10bit)[s]
+localparam IDLE = 4'b0111;
+localparam StartTXD = 4'b0000;
+localparam Transmit = 4'b0001;
+localparam PreStart = 4'b0010;
 
+localparam Data1_Part1 = 4'b0011;
+localparam Data1_Part2 = 4'b0100;
+localparam Data2_Part1 = 4'b0101;
+localparam Data2_Part2 = 4'b0110;
+localparam Data3_Part1 = 4'b1000;
+localparam Data3_Part2 = 4'b1001;
+localparam Data4_Part1 = 4'b1010;
+localparam Data4_Part2 = 4'b1011;
+localparam Data5_Part1 = 4'b1100;
+localparam Data6_Part1 = 4'b1101;
 //Sequential data execute
 //****************************************************************************************************************//
 always @(posedge clk) begin
@@ -96,6 +110,12 @@ always@* begin
             else if(StepCounter == 5) state_nxt = Data1_Part2;
             else if(StepCounter == 6) state_nxt = Data2_Part1;
             else if(StepCounter == 7) state_nxt = Data2_Part2;
+            else if(StepCounter == 8) state_nxt = Data3_Part1;
+            else if(StepCounter == 9) state_nxt = Data3_Part2;
+            else if(StepCounter == 10)state_nxt = Data4_Part1;
+            else if(StepCounter == 11)state_nxt = Data4_Part2;
+            else if(StepCounter == 12)state_nxt = Data5_Part1;
+            else if(StepCounter == 13)state_nxt = Data6_Part1;
             else state_nxt = IDLE;
         end
     end
@@ -119,6 +139,37 @@ always@* begin
     Data2_Part2: begin
         state_nxt = StartTXD;
         HoldData_nxt = {7'b00000, HoldData[9:8]};
+        StepCounter_nxt = StepCounter + 1;
+    end
+    
+    Data3_Part1: begin
+        state_nxt = StartTXD;
+        HoldData_nxt = xpos_bullet_green_toUART;
+        StepCounter_nxt = StepCounter + 1;
+    end
+    Data3_Part2: begin
+        state_nxt = StartTXD;
+        HoldData_nxt = {7'b00000, HoldData[9:8]};
+        StepCounter_nxt = StepCounter + 1;
+    end
+    Data4_Part1: begin
+        state_nxt = StartTXD;
+        HoldData_nxt = ypos_bullet_green_toUART;
+        StepCounter_nxt = StepCounter + 1;
+    end
+    Data4_Part2: begin
+        state_nxt = StartTXD;
+        HoldData_nxt = {7'b00000, HoldData[9:8]};
+        StepCounter_nxt = StepCounter + 1;
+    end
+    Data5_Part1: begin
+        state_nxt = StartTXD;
+        HoldData_nxt = {1'b0, select_mode_to_UART, direction_tank_to_UART, direction_for_enemy_toUART, tank_our_hit_toUART};
+        StepCounter_nxt = StepCounter + 1;
+    end
+    Data6_Part1: begin
+        state_nxt = StartTXD;
+        HoldData_nxt = HP_our_state_toUART;
         StepCounter_nxt = StepCounter + 1;
     end
     default: state_nxt = IDLE;

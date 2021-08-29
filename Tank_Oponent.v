@@ -15,6 +15,7 @@ module Tank_Oponent(
     input wire SelectMode,
     input wire [9:0] Data_in_X,
     input wire [9:0] Data_in_Y,
+    input wire [1:0] direction_tank_fromUART,
     
     output wire hsync_out,
     output wire vsync_out,
@@ -28,10 +29,10 @@ module Tank_Oponent(
     output wire  [11:0] ypos_out 
 );
 
-wire [11:0] xposTank, yposTank, xpos_d, ypos_d, rgb_ctl, Address, rgb_image;
-wire [10:0] hcount_d, hcount_ctl;
-wire [9:0] vcount_d, vcount_ctl;
-wire hsync_d, vsync_d, hblnk_d, vblnk_d, hsync_ctl, vsync_ctl, hblnk_ctl, vblnk_ctl, Select_ctl;
+wire [11:0] xpos_d, ypos_d, rgb_ctl, Address, rgb_image0, rgb_image1, rgb_image2, rgb_image3;
+wire [10:0] hcount_d; //, hcount_ctl;
+wire [9:0] vcount_d; //, vcount_ctl; xposTank, yposTank,
+wire hsync_d, vsync_d, hblnk_d, vblnk_d; //, hsync_ctl, vsync_ctl, hblnk_ctl, vblnk_ctl, Select_ctl;
     
 Delay_op Delay_op(
     .clk(clk),
@@ -55,46 +56,24 @@ Delay_op Delay_op(
     .ypos_out(ypos_d)  
 );
     
-Control_op Control_op(
-    .clk(clk),
-    .rst(rst),
-    .SelectMode(SelectMode),
-    .hcount(hcount_d),
-    .vcount(vcount_d),
-    .hblnk(hblnk_d),
-    .vblnk(vblnk_d),
-    .hsync(hsync_d),
-    .vsync(vsync_d),
-    .rgb_in(rgb_in),
-    .Data_in_X(Data_in_X),
-    .Data_in_Y(Data_in_Y),
-        
-    .Select_out(Select_ctl),
-    .hcount_out(hcount_ctl),
-    .vcount_out(vcount_ctl),
-    .hsync_out(hsync_ctl),
-    .vsync_out(vsync_ctl),
-    .hblnk_out(hblnk_ctl),
-    .vblnk_out(vblnk_ctl),
-    .rgb_out(rgb_ctl),
-    .xpos(xposTank),
-    .ypos(yposTank)  
-);
-
 draw_tank_op DrawTank_op(
     .clk(clk),
     .rst(rst),
-    .select(Select_ctl),
-    .hcount_in(hcount_ctl),
-    .vcount_in(vcount_ctl),
-    .hsync_in(hsync_ctl),
-    .vsync_in(vsync_ctl),
-    .hblnk_in(hblnk_ctl),
-    .vblnk_in(vblnk_ctl),
-    .rgb_in(rgb_ctl),
-    .rgb_pixel(rgb_image),
-    .posX(xposTank),
-    .posY(yposTank),
+    .select(SelectMode),
+    .hcount_in(hcount_d),
+    .vcount_in(vcount_d),
+    .hsync_in(hsync_d),
+    .vsync_in(vsync_d),
+    .hblnk_in(hblnk_d),
+    .vblnk_in(vblnk_d),
+    .rgb_in(rgb_in),
+    .posX(Data_in_X),
+    .posY(Data_in_Y),
+    .rgb_pixel_0(rgb_image0),
+    .rgb_pixel_1(rgb_image1),
+    .rgb_pixel_2(rgb_image2),
+    .rgb_pixel_3(rgb_image3),
+    .direction_tank(direction_tank_fromUART),
     
     .hcount_out(hcount_out),
     .hsync_out(hsync_out),
@@ -107,11 +86,14 @@ draw_tank_op DrawTank_op(
     .pixel_addr(Address)
 );
 
-image_tank_op ImageTank_op(
+Choose_image_tank_op Choose_image_tank_op(
     .clk(clk),
     .address(Address),
     
-    .rgb(rgb_image)
+    .rgb0(rgb_image0),
+    .rgb1(rgb_image1),
+    .rgb2(rgb_image2),
+    .rgb3(rgb_image3)
 );
 
 DelayForDraw_op DelayForDraw_op(

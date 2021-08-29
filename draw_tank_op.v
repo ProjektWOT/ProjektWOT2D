@@ -13,8 +13,12 @@ module draw_tank_op(
     input wire [9:0] posX,
     input wire [9:0] posY,
     input wire [11:0] rgb_in,
-    input wire [11:0] rgb_pixel,
-    
+    input wire [11:0] rgb_pixel_0,
+    input wire [11:0] rgb_pixel_1,
+    input wire [11:0] rgb_pixel_2,
+    input wire [11:0] rgb_pixel_3,
+    input wire [1:0] direction_tank, //zmienić w draw_tank   
+     
     output reg [10:0] hcount_out,
     output reg [9:0] vcount_out,
     output reg hsync_out,
@@ -28,6 +32,7 @@ module draw_tank_op(
     
 wire [5:0] Addr_x, Addr_y;
 
+reg [1:0] direction_tank_temp;
 reg [11:0] rgb_temp, rgb_out_nxt;
 reg [10:0] hcount_temp;
 reg [9:0] vcount_temp;
@@ -62,12 +67,32 @@ localparam LENGTH = 48;
 localparam HEIGTH = 64;
 
 always@* begin
-if(select == 0) rgb_out_nxt = rgb_temp;
-else if (rgb_pixel == 12'hf_f_f) rgb_out_nxt = rgb_temp;
-else if (vcount_temp>=posY && vcount_temp<(posY+HEIGTH) && hcount_temp>=posX && hcount_temp<(posX+LENGTH) && hblnk_temp==0 && vblnk_temp==0) rgb_out_nxt = rgb_pixel;
-else rgb_out_nxt = rgb_temp;
+    if(direction_tank==0) begin
+        if(select == 0) rgb_out_nxt = rgb_temp;
+        else if (rgb_pixel_0 == 12'hf_f_f) rgb_out_nxt = rgb_temp;
+        else if (vcount_temp>=posY && vcount_temp<(posY+HEIGTH) && hcount_temp>=posX && hcount_temp<(posX+LENGTH) && hblnk_temp==0 && vblnk_temp==0) rgb_out_nxt = rgb_pixel_0;
+        else rgb_out_nxt = rgb_temp;
+    end
+    else if(direction_tank==1) begin
+        if(select == 0) rgb_out_nxt = rgb_temp;
+        else if (rgb_pixel_1 == 12'hf_f_f) rgb_out_nxt = rgb_temp;
+        else if (vcount_temp>=posY && vcount_temp<(posY+HEIGTH) && hcount_temp>=posX && hcount_temp<(posX+LENGTH) && hblnk_temp==0 && vblnk_temp==0) rgb_out_nxt = rgb_pixel_1;
+        else rgb_out_nxt = rgb_temp;
+    end   
+    else if(direction_tank==2) begin
+        if(select == 0) rgb_out_nxt = rgb_temp;
+        else if (rgb_pixel_2 == 12'hf_f_f) rgb_out_nxt = rgb_temp;
+        else if (vcount_temp>=posY && vcount_temp<(posY+LENGTH) && hcount_temp>=posX && hcount_temp<(posX+HEIGTH) && hblnk_temp==0 && vblnk_temp==0) rgb_out_nxt = rgb_pixel_2;
+        else rgb_out_nxt = rgb_temp;
+    end  
+    else if(direction_tank==3) begin
+        if(select == 0) rgb_out_nxt = rgb_temp;
+        else if (rgb_pixel_3 == 12'hf_f_f) rgb_out_nxt = rgb_temp;
+        else if (vcount_temp>=posY && vcount_temp<(posY+LENGTH) && hcount_temp>=posX && hcount_temp<(posX+HEIGTH) && hblnk_temp==0 && vblnk_temp==0) rgb_out_nxt = rgb_pixel_3;
+        else rgb_out_nxt = rgb_temp;
+    end  
+    else rgb_out_nxt = rgb_temp;
 end
-
 assign Addr_y = vcount_in - posY;
 assign Addr_x = hcount_in - posX;
 assign pixel_addr = {Addr_y[5:0], Addr_x[5:0]};

@@ -18,6 +18,12 @@ module Tank_Gen(
     input wire [9:0] Data_X_op,
     input wire [9:0] Data_Y_op,
     input wire left_click,
+    input wire select_mode_from_UART,
+    input wire tank_our_hit_fromUART,
+    input wire [2:0] direction_for_enemy_fromUART,
+    input wire [9:0] xpos_bullet_green_fromUART,
+    input wire [9:0] ypos_bullet_green_fromUART,
+    input wire [7:0] HP_enemy_state_fromUART,
     
     output wire hsync_out,
     output wire vsync_out,
@@ -30,18 +36,27 @@ module Tank_Gen(
     output wire [11:0] xpos_out,
     output wire [11:0] ypos_out,
     output wire [9:0] xpos_UART,
-    output wire [9:0] ypos_UART
+    output wire [9:0] ypos_UART,
+    
+    output wire [9:0] xpos_bullet_green_toUART,
+    output wire [9:0] ypos_bullet_green_toUART,
+    output wire tank_our_hit_toUART,
+    output wire [2:0] direction_for_enemy_toUART,
+    output wire [1:0] direction_tank_to_UART,
+    output wire [7:0] HP_our_state_toUART,
+    output wire [7:0] Secounds,
+    output wire [7:0] Milis
 );
 
-wire [11:0] rgb_image0, rgb_image1, rgb_image2, rgb_image3, rgb_draw, rgb_gun;
-wire [11:0] xposTank, yposTank, xpos_d, ypos_d, rgb_ctl, Address, xpos_draw, ypos_draw, xpos_gun, ypos_gun;
-wire [10:0]  hcount_ctl, hcount_draw, hcount_gun; //, hcount_d;
-wire [9:0]  vcount_ctl, vcount_draw, vcount_gun; //, vcount_d;
+wire [11:0] rgb_image0, rgb_image1, rgb_image2, rgb_image3, rgb_draw, rgb_gun, rgb_bul;
+wire [11:0] xposTank, yposTank, xpos_d, ypos_d, rgb_ctl, Address, xpos_draw, ypos_draw, xpos_gun, ypos_gun, xpos_bul, ypos_bul;
+wire [10:0]  hcount_ctl, hcount_draw, hcount_gun, hcount_bul; //, hcount_d;
+wire [9:0]  vcount_ctl, vcount_draw, vcount_gun, vcount_bul; //, vcount_d;
 wire hsync_ctl, vsync_ctl, hblnk_ctl, vblnk_ctl, Select_ctl, Select_draw, hblnk_draw, vblnk_draw, hsync_draw, vsync_draw,
-hblnk_gun, vblnk_gun, hsync_gun, vsync_gun; 
+hblnk_gun, vblnk_gun, hsync_gun, vsync_gun, hblnk_bul, vblnk_bul, hsync_bul, vsync_bul; 
 wire [1:0] direction_bullet, direction_bullet_draw;
 wire [9:0] Data_X_op_out, Data_Y_op_out, posX_drawtank, posY_drawtank;
-wire tank_our_hit; 
+wire Select;
 
 Delay Delay(
     .clk(clk),
@@ -59,7 +74,7 @@ Delay Delay(
 Control Control(
     .clk(clk),
     .rst(rst),
-    .SelectMode(SelectMode),
+    .SelectMode(Select),
     .hcount(hcount),
     .vcount(vcount),
     .hblnk(hblnk),
@@ -84,6 +99,7 @@ Control Control(
     .ypos_UART(ypos_UART),
     .direction_bullet(direction_bullet)
 );
+assign direction_tank_to_UART = direction_bullet;
 
 draw_tank DrawTank(
     .clk(clk),
@@ -166,16 +182,19 @@ Gun_ctrl Gun_ctrl(
     .rgb_out(rgb_gun),
     .xpos_m_out(xpos_gun),
     .ypos_m_out(ypos_gun),
-    .tank_central_hit(tank_our_hit),
-    .xpos_bullet_green(),
-    .ypos_bullet_green()
+    .tank_central_hit(tank_our_hit_toUART),
+    .direction_for_enemy(direction_for_enemy_toUART),
+    .xpos_bullet_green(xpos_bullet_green_toUART),
+    .ypos_bullet_green(ypos_bullet_green_toUART),
+    .Secounds(Secounds),
+    .Milis(Milis)
 );
 
 Opponent_Bullet Opponent_Bullet(
     .clk(clk),
     .rst(rst),
-    .xpos_bullet_red(),
-    .ypos_bullet_red(),
+    .xpos_bullet_red(xpos_bullet_green_fromUART),
+    .ypos_bullet_red(ypos_bullet_green_fromUART),
     .hblnk(hblnk_gun),
     .vblnk(vblnk_gun),
     .hsync(hsync_gun),
@@ -185,8 +204,35 @@ Opponent_Bullet Opponent_Bullet(
     .rgb(rgb_gun),
     .xpos_m(xpos_gun),
     .ypos_m(ypos_gun),
-    .tank_enemy_hit_us(),
-    .tank_our_hit(tank_our_hit),
+    .tank_enemy_hit_us(tank_our_hit_fromUART),
+    .direction_from_enemy(direction_for_enemy_fromUART),
+    
+    .hblnk_out(hblnk_bul),
+    .vblnk_out(vblnk_bul),
+    .hsync_out(hsync_bul),
+    .vsync_out(vsync_bul),
+    .hcount_out(hcount_bul),
+    .vcount_out(vcount_bul),
+    .rgb_out(rgb_bul),
+    .xpos_m_out(xpos_bul),
+    .ypos_m_out(ypos_bul)
+);
+
+HP_state HP_state(
+    .clk(clk),
+    .rst(rst),
+    .hblnk(hblnk_bul),
+    .vblnk(vblnk_bul),
+    .hsync(hsync_bul),
+    .vsync(vsync_bul),
+    .hcount(hcount_bul),
+    .vcount(vcount_bul),
+    .rgb(rgb_bul),
+    .xpos_m(xpos_bul),
+    .ypos_m(ypos_bul),
+    .select(Select_draw),
+    .tank_enemy_hit_us(tank_our_hit_fromUART),
+    .HP_enemy_state(HP_enemy_state_fromUART),
     
     .hblnk_out(hblnk_out),
     .vblnk_out(vblnk_out),
@@ -197,7 +243,7 @@ Opponent_Bullet Opponent_Bullet(
     .rgb_out(rgb_out),
     .xpos_m_out(xpos_out),
     .ypos_m_out(ypos_out),
-    .tank_enemy_hit_us_out(),
-    .tank_our_hit_out()
+    .HP_our_state(HP_our_state_toUART)
 );
+assign Select = (select_mode_from_UART) && (SelectMode); 
 endmodule

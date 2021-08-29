@@ -45,6 +45,7 @@ always@ (posedge clk)
 if (rst) begin
     {hsync_out, vsync_out, hblnk_out, vblnk_out, hcount_out, vcount_out, rgb_out} <= 0;
     {hsync_temp, vsync_temp, hblnk_temp, vblnk_temp, hcount_temp, vcount_temp, rgb_temp} <= 0; 
+    direction_bullet_temp<=0;
 end 
 else begin
     hsync_temp <= hsync_in;

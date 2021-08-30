@@ -27,6 +27,7 @@ module vga_project(
 //Mirror PCLK; Reset_Module; Clk_Module
 //****************************************************************************************************************//
 wire clk_100MHz, Locked, RstExt, clk_130MHz, clk_65MHz;
+wire back_to_MENU, SelectMode;
 ODDR pclk_oddr (
     .Q(pclk_mirror),
     .C(clk_65MHz),
@@ -37,7 +38,7 @@ ODDR pclk_oddr (
     .S(1'b0)
 );
 Reset Reset(
-    .locked(Locked),
+    .locked(Locked && (~back_to_MENU)),
     .clk(clk_65MHz),
     .reset(RstExt)
 );
@@ -56,14 +57,11 @@ clk_wiz_0 Clock(
 wire [9:0] Data_Jstk_X, Data_Jstk_Y, xpos_tank_uart_out, ypos_tank_uart_out;
 wire [9:0] xpos_bullet_green_fromUART, ypos_bullet_green_fromUART, xpos_bullet_green_toUART, ypos_bullet_green_toUART;
 wire [2:0] direction_for_enemy_fromUART, direction_for_enemy_toUART;
-wire [7:0] HP_our_state_toUART, HP_enemy_state_fromUART;
-wire tank_our_hit_fromUART, tank_our_hit_toUART;
+wire tank_our_hit_fromUART, tank_our_hit_toUART, obstacle_hit_fromUART, obstacle_hit_toUART;
 wire [15:0] XPosTankUart, YPosTankUart;
 wire [1:0] direction_tank_fromUART, direction_tank_to_UART; 
-wire ButtonLeft, SelectMode, SelectTank, SelectMode_op, Select_from_UART;
-
-wire [7:0] Secounds, Milis;
-
+wire [7:0] HP_enemy_state_toUART, HP_our_state_fromUART;
+wire [3:0] Seconds;
 uart Uart(
     .clk(clk_65MHz),
     .reset(RstExt),
@@ -73,9 +71,9 @@ uart Uart(
     .ypos_bullet_green_toUART(ypos_bullet_green_toUART),
     .direction_for_enemy_toUART(direction_for_enemy_toUART),
     .tank_our_hit_toUART(tank_our_hit_toUART),
+    .obstacle_hit_toUART(obstacle_hit_toUART),
     .direction_tank_to_UART(direction_tank_to_UART),
-    .select_mode_to_UART(SelectMode),
-    .HP_our_state_toUART(HP_our_state_toUART),
+    .HP_enemy_state_toUART(HP_enemy_state_toUART),
     .rx(UART_RXD),
     
     .tx(UART_TXD),
@@ -85,17 +83,17 @@ uart Uart(
     .ypos_bullet_green_fromUART(ypos_bullet_green_fromUART),
     .direction_for_enemy_fromUART(direction_for_enemy_fromUART),
     .tank_our_hit_fromUART(tank_our_hit_fromUART),
+    .obstacle_hit_fromUART(obstacle_hit_fromUART),
     .direction_tank_fromUART(direction_tank_fromUART),
-    .select_mode_from_UART(Select_from_UART),
-    .HP_enemy_state_fromUART(HP_enemy_state_fromUART)
+    .HP_our_state_fromUART(HP_our_state_fromUART)
     );
 disp_hex_mux DisplayHexMux(
     .clk(clk_65MHz),
     .reset(RstExt),             //Dla nadajnika
-    .hex0(HP_our_state_toUART[3:0]),   //Data_Jstk_X[3:0]
-    .hex1(HP_our_state_toUART[7:4]),   //Data_Jstk_X[7:4]
-    .hex2(Milis[3:0]),  //{2'b0000,Data_Jstk_X[9:8]}
-    .hex3(Milis[7:4]), //4'b0000
+    .hex0(Seconds[3:0]),   //Data_Jstk_X[3:0]
+    .hex1({3'b000, back_to_MENU}),   //Data_Jstk_X[7:4]
+    .hex2({3'b000, SelectMode}),  //{2'b0000,Data_Jstk_X[9:8]}
+    .hex3(HP_enemy_state_toUART[7:4]), //4'b0000
     .dp_in(~4'b0000),
     
     .an(AN),
@@ -119,8 +117,8 @@ wire [10:0] hcount_out_tim, hcount_out_Base, hcount_tank, hcount_out_gui, hcount
 wire [9:0]  vcount_out_tim, vcount_out_Base, vcount_tank, vcount_out_gui, vcount_tank_op;
 wire vsync_out_tim, hsync_out_tim, vsync_out_Base, hsync_out_Base, vsync_OUT, hsync_OUT, hsync_tank, vsync_tank, hsync_out_gui, vsync_out_gui, hsync_tank_op, vsync_tank_op;
 wire vblnk_out_tim, hblnk_out_tim, vblnk_out_Base, hblnk_out_Base, hblnk_tank, vblnk_tank, hblnk_out_gui, vblnk_out_gui, hblnk_tank_op, vblnk_tank_op;
-
 wire [11:0] posX_65Mhz, posY_65Mhz, Out_posX_130MHz, Out_posY_130MHz, xpos_out_Base, ypos_out_Base, xpos_tank, ypos_tank, xpos_tank_op, ypos_tank_op;
+wire ButtonLeft, SelectTank, SelectMode_op;
 //Timing
 //****************************************************************************************************************//
 vga_timing Timing (
@@ -250,12 +248,12 @@ Tank_Gen Tank_Gen(
     .Data_Y_op(YPosTankUart[9:0]),
     .left_click(ButtonLeft),
     .tank_our_hit_fromUART(tank_our_hit_fromUART),
-    .select_mode_from_UART(Select_from_UART),
+    .obstacle_hit_fromUART(obstacle_hit_fromUART),
     .direction_for_enemy_fromUART(direction_for_enemy_fromUART),
     .xpos_bullet_green_fromUART(xpos_bullet_green_fromUART),
     .ypos_bullet_green_fromUART(ypos_bullet_green_fromUART),
-    .HP_enemy_state_fromUART(HP_enemy_state_fromUART),
-      
+    .HP_our_state_fromUART(HP_our_state_fromUART),
+       
     .hsync_out(hsync_tank),
     .vsync_out(vsync_tank),
     .hblnk_out(hblnk_tank),
@@ -271,11 +269,12 @@ Tank_Gen Tank_Gen(
     .xpos_bullet_green_toUART(xpos_bullet_green_toUART),
     .ypos_bullet_green_toUART(ypos_bullet_green_toUART),
     .tank_our_hit_toUART(tank_our_hit_toUART),
+    .obstacle_hit_toUART(obstacle_hit_toUART),
     .direction_for_enemy_toUART(direction_for_enemy_toUART),
     .direction_tank_to_UART(direction_tank_to_UART),
-    .HP_our_state_toUART(HP_our_state_toUART),
-    .Secounds(Secounds),
-    .Milis(Milis)
+    .HP_enemy_state_toUART(HP_enemy_state_toUART),
+    .Seconds(Seconds),
+    .back_to_MENU(back_to_MENU)
     );
 Tank_Oponent Tank_Oponent(
     .clk(clk_65MHz),

@@ -8,7 +8,7 @@ module BaseControl(
     input wire ButtonLeft,
     input wire [11:0] rgbMapa,
     input wire [11:0] rgbMenu,
-
+    
     output reg [11:0] xpos_out,
     output reg [11:0] ypos_out,
     output reg [11:0] rgb,
@@ -63,7 +63,7 @@ always @* begin
             end
         end
     MAPA: begin
-        if(ypos >= 10 && ypos <= 30 && xpos >= 993 && xpos <= 1013 && ButtonLeft == 1) begin 
+        if(ypos >= 10 && ypos <= 30 && xpos >= 993 && xpos <= 1013 && ButtonLeft == 1 ) begin 
             Select_nxt = 0;
             rgb_nxt <= rgbMenu;
             end

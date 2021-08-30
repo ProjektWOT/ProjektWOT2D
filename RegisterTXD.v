@@ -9,9 +9,9 @@ module RegisterTXD(
     input wire [9:0] ypos_bullet_green_toUART,
     input wire [2:0] direction_for_enemy_toUART,
     input wire tank_our_hit_toUART,
+    input wire obstacle_hit_toUART,
     input wire [1:0] direction_tank_to_UART,
-    input wire select_mode_to_UART,
-    input wire [7:0] HP_our_state_toUART,
+    input wire [7:0] HP_enemy_state_toUART,
     
     output reg [7:0] DataPosOut,
     output reg TX_start
@@ -26,7 +26,7 @@ reg [3:0] StepCounter, StepCounter_nxt;
 reg [14:0] counter, counter_nxt;
 
 reg [3:0] state, state_nxt;
-localparam DELAY = 30000; // Transmittion time ~ 261[us] = ((1/38400)*10bit)[s]
+localparam DELAY = 18620; // Transmittion time ~ 261[us] = ((1/38400)*10bit)[s]
 localparam IDLE = 4'b0111;
 localparam StartTXD = 4'b0000;
 localparam Transmit = 4'b0001;
@@ -164,12 +164,12 @@ always@* begin
     end
     Data5_Part1: begin
         state_nxt = StartTXD;
-        HoldData_nxt = {1'b0, select_mode_to_UART, direction_tank_to_UART, direction_for_enemy_toUART, tank_our_hit_toUART};
+        HoldData_nxt = {HP_enemy_state_toUART};
         StepCounter_nxt = StepCounter + 1;
     end
     Data6_Part1: begin
         state_nxt = StartTXD;
-        HoldData_nxt = HP_our_state_toUART;
+        HoldData_nxt = {1'b0, obstacle_hit_toUART, direction_tank_to_UART, direction_for_enemy_toUART, tank_our_hit_toUART};
         StepCounter_nxt = StepCounter + 1;
     end
     default: state_nxt = IDLE;

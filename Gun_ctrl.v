@@ -19,7 +19,8 @@ module Gun_ctrl(
     input wire [9:0]  xpos_t_op,
     input wire [9:0]  ypos_t_op,
     input wire [1:0] direction_bullet,
-    
+    input wire [7:0] HP_our_state,
+     
     output reg select_out,
     output reg hblnk_out,
     output reg vblnk_out,
@@ -31,32 +32,52 @@ module Gun_ctrl(
     output reg [11:0] xpos_m_out,
     output reg [11:0] ypos_m_out,
     output reg tank_central_hit,
+    output reg obstacle_hit,
     output reg [9:0] xpos_bullet_green,
     output reg [9:0] ypos_bullet_green,
     output reg [2:0] direction_for_enemy,
-    output reg [7:0] Secounds,
-    output wire [7:0] Milis
+    output reg [7:0] HP_enemy_state,
+    output reg [3:0] Seconds 
 );
 
+reg [7:0] HP_enemy_state_nxt = 150;
 reg [11:0] rgb_nxt;
 reg [16:0] counter,  counter_nxt;
 reg [10:0] pos_bullet, pos_bullet_nxt;
 reg [9:0] xpos_block, ypos_block, xpos_block_nxt, ypos_block_nxt;
 reg [9:0] xpos_bullet_green_nxt, ypos_bullet_green_nxt;
 reg [2:0] direction_for_enemy_nxt;
-reg tank_central_hit_nxt;
-reg ReloadTime, ReloadTime_nxt;
-reg [3:0] Milis10, Milis10_nxt, Milis100, Milis100_nxt;
-reg [7:0] Secounds_nxt;
-reg [19:0] CounterTime, CounterTime_nxt;
+reg tank_central_hit_nxt, obstacle_hit_nxt;
+
+reg [23:0] ReloadTime, ReloadTime_nxt;
+reg [3:0]  Seconds_nxt=9;
 localparam DELAY = 130000;
-localparam RELOAD = 195000000; //195 000 000
-localparam TEN_milis = 650000; //650 000
+localparam RELOAD = 13000000; //13 000 000 -> 200ms
 
 localparam LOWER_LIMIT = 768;
 localparam UPPER_LIMIT = 2;
 localparam RIGHT_LIMIT = 768;
 localparam LEFT__LIMIT = 2;
+localparam H_BUILDING_UP = 81;
+localparam H_BUILDING_DOWN = 170;
+localparam H_BUILDING_LEFT = 308;
+localparam H_BUILDING_RIGHT = 440,
+           HOUSE_UP = 563,
+           HOUSE_DOWN = 642,
+           HOUSE_LEFT = 291,
+           HOUSE_RIGHT = 452,
+           WALL1_UP = 377,
+           WALL1_DOWN = 393,
+           WALL1_LEFT = 38,
+           WALL1_RIGHT = 180,
+           WALL2_UP = 310,
+           WALL2_DOWN = 328,
+           WALL2_LEFT = 269,
+           WALL2_RIGHT = 401,
+           WALL3_UP = 376,
+           WALL3_DOWN = 390,
+           WALL3_LEFT = 390,
+           WALL3_RIGHT = 517; 
 
 reg [2:0] state, state_nxt;
 localparam IDLE = 3'b000;
@@ -65,6 +86,7 @@ localparam SHOT_1 = 3'b010;
 localparam SHOT_3 = 3'b011;
 localparam SHOT_2 = 3'b100;
 localparam HIT_TANK = 3'b101;
+localparam HIT_OBSTACLE = 3'b110;
 
 always@(posedge clk) begin
     if(rst) begin
@@ -76,7 +98,9 @@ always@(posedge clk) begin
         xpos_block <= xpos_t;
         ypos_block <= ypos_t;
         state <= IDLE;
-        {counter, tank_central_hit, xpos_bullet_green, ypos_bullet_green, direction_for_enemy, ReloadTime, Milis10, Milis100, CounterTime, Secounds} <= 0;
+        HP_enemy_state <= 150;
+        Seconds <= 9;
+        {counter, tank_central_hit, obstacle_hit, xpos_bullet_green, ypos_bullet_green, direction_for_enemy, ReloadTime} <= 0;
     end
     else begin
         select_out <= select;
@@ -97,42 +121,14 @@ always@(posedge clk) begin
         xpos_bullet_green <= xpos_bullet_green_nxt;
         ypos_bullet_green <= ypos_bullet_green_nxt;
         tank_central_hit <= tank_central_hit_nxt;
+        obstacle_hit <= obstacle_hit_nxt;
         direction_for_enemy <= direction_for_enemy_nxt;
+        HP_enemy_state <= HP_enemy_state_nxt;
         ReloadTime <= ReloadTime_nxt;
-        Milis10 <= Milis10_nxt;
-        Milis100 <= Milis100_nxt;
-        Secounds <= Secounds_nxt;
-        CounterTime <= CounterTime_nxt;
-        
-        if(ReloadTime == 0 && select == 1 && left_click == 1) ReloadTime_nxt = 1;
-        else if (ReloadTime  == 1) begin
-            if(CounterTime == TEN_milis && Milis10 < 10) begin
-                Milis10_nxt = Milis10 + 1;
-                CounterTime = 0;
-                end
-            else if(Milis10 == 10 && Milis100 < 10) begin
-                Milis10 = 0;
-                Milis100_nxt = Milis100 + 1;
-                end
-            else if (Milis10 == 10 && Milis100 == 10) begin
-                Milis100_nxt = 0;
-                Milis10_nxt = 0;
-                Secounds_nxt = Secounds + 1;
-                end
-            else CounterTime_nxt = CounterTime + 1;
-            end
-        else if (Secounds == 5) begin
-            Milis100_nxt = 0;
-            Milis10_nxt = 0;
-            ReloadTime_nxt = 0;
-            Secounds = 0;
-            end
-        else ReloadTime_nxt = ReloadTime;
-        end
+        Seconds <= Seconds_nxt;
     end
-  
-assign Milis = {Milis10, Milis100};
-   
+end
+
 always@* begin
     state_nxt = state;
     pos_bullet_nxt = pos_bullet;
@@ -141,15 +137,31 @@ always@* begin
     xpos_block_nxt = xpos_block;
     ypos_block_nxt = ypos_block;
     tank_central_hit_nxt = tank_central_hit;
+    obstacle_hit_nxt = obstacle_hit;
     xpos_bullet_green_nxt = xpos_bullet_green;
     ypos_bullet_green_nxt = ypos_bullet_green;
     direction_for_enemy_nxt = direction_for_enemy;
+    HP_enemy_state_nxt = HP_enemy_state;
     
+    ReloadTime_nxt = ReloadTime;
+    Seconds_nxt = Seconds;
+    if(select == 1 && HP_enemy_state != 0 && HP_our_state != 0) begin
+        if(left_click == 1 && Seconds == 0) Seconds_nxt = 9;
+        else if(Seconds == 0) Seconds_nxt = 0;
+        else if(ReloadTime >= RELOAD) begin
+            Seconds_nxt = Seconds - 1;
+            ReloadTime_nxt = 0;
+            end
+        else ReloadTime_nxt = ReloadTime + 1;
+    end
+    else Seconds_nxt = 9;
+
     case(state)
     IDLE: begin
-        if(select == 1 && left_click == 1 && ReloadTime == 0) begin
+        if(select == 1 && left_click == 1 && Seconds == 0) begin
             state_nxt = SHOT_0 + direction_bullet;
             tank_central_hit_nxt = 0;
+            obstacle_hit_nxt = 0;
             xpos_block_nxt = xpos_t;
             ypos_block_nxt = ypos_t;
             counter_nxt = 0;
@@ -165,6 +177,7 @@ always@* begin
             state_nxt = IDLE;
             rgb_nxt = rgb;
             tank_central_hit_nxt = 0;
+            obstacle_hit_nxt = 0;
             xpos_block_nxt = xpos_t;
             ypos_block_nxt = ypos_t;
             xpos_bullet_green_nxt = 0;
@@ -183,7 +196,17 @@ always@* begin
             end
             
         if(ypos_block - pos_bullet - 5 <= UPPER_LIMIT) begin state_nxt = IDLE; rgb_nxt = rgb; end
-        else if((ypos_block-pos_bullet-48 <= ypos_t_op)&&(xpos_block + 24 >= xpos_t_op)&&(xpos_block-24 <= xpos_t_op)) begin state_nxt = HIT_TANK; rgb_nxt = rgb; end
+        else if((ypos_block-pos_bullet-48 <= ypos_t_op)&&(xpos_block + 24 >= xpos_t_op)&&(xpos_block-24 <= xpos_t_op)&&(ypos_block-pos_bullet+5 >= ypos_t_op)) begin state_nxt = HIT_TANK; rgb_nxt = rgb; end
+        //PRZESZKODA BUDYNEK H 
+        else if((ypos_block-pos_bullet-5 >= H_BUILDING_UP)&&(xpos_block+24 <= H_BUILDING_RIGHT)&&(xpos_block +24 >= H_BUILDING_LEFT)&&(ypos_block-pos_bullet-5 <= H_BUILDING_DOWN))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
+        //PRZESZKODA BUDYNEK DOM 
+        else if((ypos_block-pos_bullet-5 >= HOUSE_UP)&&(xpos_block+24 <= HOUSE_RIGHT)&&(xpos_block +24 >= HOUSE_LEFT)&&(ypos_block-pos_bullet-5 <= HOUSE_DOWN))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
+        //PRZESZKODA BUDYNEK MUR 1 
+        else if((ypos_block-pos_bullet-5 >= WALL1_UP)&&(xpos_block+24 <= WALL1_RIGHT)&&(xpos_block +24 >= WALL1_LEFT)&&(ypos_block-pos_bullet-5 <= WALL1_DOWN))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
+        //PRZESZKODA BUDYNEK MUR 2 
+        else if((ypos_block-pos_bullet-5 >= WALL2_UP)&&(xpos_block+24 <= WALL2_RIGHT)&&(xpos_block +24 >= WALL2_LEFT)&&(ypos_block-pos_bullet-5 <= WALL2_DOWN))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
+        //PRZESZKODA BUDYNEK MUR 3 
+        else if((ypos_block-pos_bullet-5 >= WALL3_UP)&&(xpos_block+24 <= WALL3_RIGHT)&&(xpos_block +24 >= WALL3_LEFT)&&(ypos_block-pos_bullet-5 <= WALL3_DOWN))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
         else if(vcount >= ypos_block - pos_bullet - 5 && vcount <= ypos_block - pos_bullet + 5 && hcount >= xpos_block + 22 && hcount <= xpos_block + 26) rgb_nxt = 12'h000;
         else rgb_nxt = rgb;
         xpos_bullet_green_nxt = xpos_block+24;
@@ -201,7 +224,17 @@ always@* begin
             end
             
         if(ypos_block + pos_bullet + 27 >= LOWER_LIMIT) begin state_nxt = IDLE; rgb_nxt = rgb; end
-        else if((ypos_block+pos_bullet + 5 >= ypos_t_op)&&(xpos_block + 24 >= xpos_t_op)&&(xpos_block-24 <= xpos_t_op)) begin state_nxt = HIT_TANK; rgb_nxt = rgb; end
+        else if((ypos_block+pos_bullet + 5 >= ypos_t_op)&&(xpos_block + 24 >= xpos_t_op)&&(xpos_block-24 <= xpos_t_op)&&(ypos_block+pos_bullet-53 <= ypos_t_op)) begin state_nxt = HIT_TANK; rgb_nxt = rgb; end
+        //PRZESZKODA BUDYNEK H 
+        else if((ypos_block+pos_bullet+27 >= H_BUILDING_UP)&&(xpos_block + 24 <= H_BUILDING_RIGHT)&&(xpos_block + 24 >= H_BUILDING_LEFT)&&(ypos_block+pos_bullet+5 <= H_BUILDING_DOWN))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
+        //PRZESZKODA DOM 
+        else if((ypos_block+pos_bullet+27 >= HOUSE_UP)&&(xpos_block + 24 <= HOUSE_RIGHT)&&(xpos_block + 24 >= HOUSE_LEFT)&&(ypos_block+pos_bullet+5 <= HOUSE_DOWN))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
+        //PRZESZKODA MUR 1
+        else if((ypos_block+pos_bullet+27 >= WALL1_UP)&&(xpos_block + 24 <= WALL1_RIGHT)&&(xpos_block + 24 >= WALL1_LEFT)&&(ypos_block+pos_bullet+5 <= WALL1_DOWN))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
+        //PRZESZKODA MUR 2
+        else if((ypos_block+pos_bullet+27 >= WALL2_UP)&&(xpos_block + 24 <= WALL2_RIGHT)&&(xpos_block + 24 >= WALL2_LEFT)&&(ypos_block+pos_bullet+5 <= WALL2_DOWN))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
+        //PRZESZKODA MUR 3
+        else if((ypos_block+pos_bullet+27 >= WALL3_UP)&&(xpos_block + 24 <= WALL3_RIGHT)&&(xpos_block + 24 >= WALL3_LEFT)&&(ypos_block+pos_bullet+5 <= WALL3_DOWN))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
         else if(vcount >= ypos_block + pos_bullet + 27 && vcount <= ypos_block + pos_bullet + 37 && hcount >= xpos_block + 22 && hcount <= xpos_block + 26) rgb_nxt = 12'h000;
         else rgb_nxt = rgb;
         xpos_bullet_green_nxt = xpos_block+24;
@@ -219,7 +252,17 @@ always@* begin
             end
             
         if (xpos_block + pos_bullet + 27 >= RIGHT_LIMIT) begin state_nxt = IDLE; rgb_nxt = rgb; end
-        else if((xpos_block+pos_bullet+5 >= xpos_t_op)&&(ypos_block + 24 >= ypos_t_op)&&(ypos_block-24 <= ypos_t_op)) begin state_nxt = HIT_TANK; rgb_nxt = rgb; end
+        else if((xpos_block+pos_bullet+5 >= xpos_t_op)&&(ypos_block + 24 >= ypos_t_op)&&(ypos_block-24 <= ypos_t_op)&&(xpos_block+pos_bullet-53 <= xpos_t_op)) begin state_nxt = HIT_TANK; rgb_nxt = rgb; end
+        //PRZESZKODA BUDYNEK H 
+        else if((xpos_block+pos_bullet+27 >= H_BUILDING_LEFT)&&(ypos_block+24 <= H_BUILDING_DOWN)&&(ypos_block+24 >= H_BUILDING_UP)&&(xpos_block+pos_bullet+5 <= H_BUILDING_RIGHT))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
+        //PRZESZKODA DOM
+        else if((xpos_block+pos_bullet+27 >= HOUSE_LEFT)&&(ypos_block+24 <= HOUSE_DOWN)&&(ypos_block+24 >= HOUSE_UP)&&(xpos_block+pos_bullet+5 <= HOUSE_RIGHT))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
+        //PRZESZKODA MUR 1
+        else if((xpos_block+pos_bullet+27 >= WALL1_LEFT)&&(ypos_block+24 <= WALL1_DOWN)&&(ypos_block+24 >= WALL1_UP)&&(xpos_block+pos_bullet+5 <= WALL1_RIGHT))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
+        //PRZESZKODA MUR 2
+        else if((xpos_block+pos_bullet+27 >= WALL2_LEFT)&&(ypos_block+24 <= WALL2_DOWN)&&(ypos_block+24 >= WALL2_UP)&&(xpos_block+pos_bullet+5 <= WALL2_RIGHT))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
+        //PRZESZKODA MUR 3
+        else if((xpos_block+pos_bullet+27 >= WALL3_LEFT)&&(ypos_block+24 <= WALL3_DOWN)&&(ypos_block+24 >= WALL3_UP)&&(xpos_block+pos_bullet+5 <= WALL3_RIGHT))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
         else if((hcount >= xpos_block + pos_bullet + 27) && (hcount <= xpos_block + pos_bullet + 37) && (vcount >= ypos_block + 22) && (vcount <= ypos_block + 26)) rgb_nxt = 12'h000;
         else rgb_nxt = rgb;
         xpos_bullet_green_nxt = xpos_block+pos_bullet;
@@ -237,7 +280,17 @@ always@* begin
             end
         
         if (xpos_block - pos_bullet -5 <= LEFT__LIMIT) begin state_nxt = IDLE; rgb_nxt = rgb; end
-        else if((xpos_block-pos_bullet-48 <= xpos_t_op)&&(ypos_block + 24 >= ypos_t_op)&&(ypos_block-24 <= ypos_t_op)) begin state_nxt = HIT_TANK; rgb_nxt = rgb; end
+        else if((xpos_block-pos_bullet-48 <= xpos_t_op)&&(ypos_block + 24 >= ypos_t_op)&&(ypos_block-24 <= ypos_t_op)&&(xpos_block-pos_bullet+5 >= xpos_t_op)) begin state_nxt = HIT_TANK; rgb_nxt = rgb; end
+         //PRZESZKODA BUDYNEK H 
+        else if((xpos_block-pos_bullet-5 >= H_BUILDING_LEFT)&&(ypos_block+24 <= H_BUILDING_DOWN)&&(ypos_block+24 >= H_BUILDING_UP)&&(xpos_block-pos_bullet+5 <= H_BUILDING_RIGHT))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
+         //PRZESZKODA DOM 
+        else if((xpos_block-pos_bullet-5 >= HOUSE_LEFT)&&(ypos_block+24 <= HOUSE_DOWN)&&(ypos_block+24 >= HOUSE_UP)&&(xpos_block-pos_bullet+5 <= HOUSE_RIGHT))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
+        //PRZESZKODA MUR 1
+        else if((xpos_block-pos_bullet-5 >= WALL1_LEFT)&&(ypos_block+24 <= WALL1_DOWN)&&(ypos_block+24 >= WALL1_UP)&&(xpos_block-pos_bullet+5 <= WALL1_RIGHT))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
+        //PRZESZKODA MUR 2
+        else if((xpos_block-pos_bullet-5 >= WALL2_LEFT)&&(ypos_block+24 <= WALL2_DOWN)&&(ypos_block+24 >= WALL2_UP)&&(xpos_block-pos_bullet+5 <= WALL2_RIGHT))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
+        //PRZESZKODA MUR 3
+        else if((xpos_block-pos_bullet-5 >= WALL3_LEFT)&&(ypos_block+24 <= WALL3_DOWN)&&(ypos_block+24 >= WALL3_UP)&&(xpos_block-pos_bullet+5 <= WALL3_RIGHT))  begin state_nxt = HIT_OBSTACLE; rgb_nxt = rgb; end
         else if((hcount >= xpos_block - pos_bullet - 5) && (hcount <= xpos_block - pos_bullet + 5) && (vcount >= ypos_block +22) && (vcount <= ypos_block + 27)) rgb_nxt = 12'h000;
         else rgb_nxt = rgb;
         xpos_bullet_green_nxt = xpos_block-pos_bullet;
@@ -247,6 +300,16 @@ always@* begin
     HIT_TANK: begin
         state_nxt = IDLE;
         tank_central_hit_nxt = 1;
+        rgb_nxt = rgb;
+        xpos_bullet_green_nxt = 0;
+        ypos_bullet_green_nxt = 0;
+        direction_for_enemy_nxt = 0;
+        if(HP_enemy_state == 0) HP_enemy_state_nxt=0;
+        else HP_enemy_state_nxt = HP_enemy_state - 15;
+    end
+    HIT_OBSTACLE: begin
+        state_nxt = IDLE;
+        obstacle_hit_nxt = 1;
         rgb_nxt = rgb;
         xpos_bullet_green_nxt = 0;
         ypos_bullet_green_nxt = 0;

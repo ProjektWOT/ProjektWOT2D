@@ -84,8 +84,19 @@ localparam LEFT = 400,
            HOUSE_UP = 499,
            HOUSE_DOWN = 643,
            HOUSE_LEFT = 243,
-           HOUSE_RIGHT = 453;
-
+           HOUSE_RIGHT = 453,
+           WALL1_UP = 313,
+           WALL1_DOWN = 394,
+           WALL1_LEFT = 0,
+           WALL1_RIGHT = 181,
+           WALL2_UP = 246,
+           WALL2_DOWN = 329,
+           WALL2_LEFT = 221,
+           WALL2_RIGHT = 402,
+           WALL3_UP = 312,
+           WALL3_DOWN = 391,
+           WALL3_LEFT = 342,
+           WALL3_RIGHT = 518;         
 //Licznik szybkości przemieszczania       
 always @* begin
     if (counter == DELAY) counter_nxt = 0;
@@ -168,6 +179,57 @@ always@* begin
             xpos_nxt = xpos_UART;
             ypos_nxt = HOUSE_UP;
         end
+        //PPRZESZKODA MUR 1
+        else if((xpos_UART == WALL1_LEFT+1)&&(xpos_UART < WALL1_RIGHT)&&(ypos_UART < WALL1_DOWN)&&(ypos_UART > WALL1_UP)) begin
+            xpos_nxt = WALL1_LEFT;
+            ypos_nxt = ypos_UART;
+        end
+        else if((xpos_UART > WALL1_LEFT)&&(xpos_UART == WALL1_RIGHT-1)&&(ypos_UART < WALL1_DOWN)&&(ypos_UART > WALL1_UP)) begin
+            xpos_nxt = WALL1_RIGHT;
+            ypos_nxt = ypos_UART;
+        end
+        else if((xpos_UART > WALL1_LEFT)&&(xpos_UART < WALL1_RIGHT)&&(ypos_UART == WALL1_DOWN-1)&&(ypos_UART > WALL1_UP)) begin
+            xpos_nxt = xpos_UART;
+            ypos_nxt = WALL1_DOWN;
+        end 
+        else if((xpos_UART > WALL1_LEFT)&&(xpos_UART < WALL1_RIGHT)&&(ypos_UART < WALL1_DOWN)&&(ypos_UART == WALL1_UP + 1)) begin
+            xpos_nxt = xpos_UART;
+            ypos_nxt = WALL1_UP;
+        end
+        //PPRZESZKODA MUR 2
+        else if((xpos_UART == WALL2_LEFT+1)&&(xpos_UART < WALL2_RIGHT)&&(ypos_UART < WALL2_DOWN)&&(ypos_UART > WALL2_UP)) begin
+            xpos_nxt = WALL2_LEFT;
+            ypos_nxt = ypos_UART;
+        end
+        else if((xpos_UART > WALL2_LEFT)&&(xpos_UART == WALL2_RIGHT-1)&&(ypos_UART < WALL2_DOWN)&&(ypos_UART > WALL2_UP)) begin
+            xpos_nxt = WALL2_RIGHT;
+            ypos_nxt = ypos_UART;
+        end
+        else if((xpos_UART > WALL2_LEFT)&&(xpos_UART < WALL2_RIGHT)&&(ypos_UART == WALL2_DOWN-1)&&(ypos_UART > WALL2_UP)) begin
+            xpos_nxt = xpos_UART;
+            ypos_nxt = WALL2_DOWN;
+        end 
+        else if((xpos_UART > WALL2_LEFT)&&(xpos_UART < WALL2_RIGHT)&&(ypos_UART < WALL2_DOWN)&&(ypos_UART == WALL2_UP + 1)) begin
+            xpos_nxt = xpos_UART;
+            ypos_nxt = WALL2_UP;
+        end
+        //PPRZESZKODA MUR 3
+        else if((xpos_UART == WALL3_LEFT+1)&&(xpos_UART < WALL3_RIGHT)&&(ypos_UART < WALL3_DOWN)&&(ypos_UART > WALL3_UP)) begin
+            xpos_nxt = WALL3_LEFT;
+            ypos_nxt = ypos_UART;
+        end
+        else if((xpos_UART > WALL3_LEFT)&&(xpos_UART == WALL3_RIGHT-1)&&(ypos_UART < WALL3_DOWN)&&(ypos_UART > WALL3_UP)) begin
+            xpos_nxt = WALL3_RIGHT;
+            ypos_nxt = ypos_UART;
+        end
+        else if((xpos_UART > WALL3_LEFT)&&(xpos_UART < WALL3_RIGHT)&&(ypos_UART == WALL3_DOWN-1)&&(ypos_UART > WALL3_UP)) begin
+            xpos_nxt = xpos_UART;
+            ypos_nxt = WALL3_DOWN;
+        end 
+        else if((xpos_UART > WALL3_LEFT)&&(xpos_UART < WALL3_RIGHT)&&(ypos_UART < WALL3_DOWN)&&(ypos_UART == WALL3_UP + 1)) begin
+            xpos_nxt = xpos_UART;
+            ypos_nxt = WALL3_UP;
+        end       
         //LOGIKA PORUSZANIA
         else if (counter == 0) begin
             if (Data_in_X < LEFT && Data_in_Y < DOWN) begin

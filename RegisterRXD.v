@@ -12,9 +12,9 @@ module RegisterRXD(
     output wire [9:0] ypos_bullet_green_fromUART,
     output wire [2:0] direction_for_enemy_fromUART,
     output wire tank_our_hit_fromUART,
+    output wire obstacle_hit_fromUART,
     output wire [1:0] direction_tank_fromUART,
-    output wire select_mode_from_UART,
-    output wire [7:0] HP_enemy_state_fromUART
+    output wire [7:0] HP_our_state_fromUART
     );
 
 //Registers and Localparams
@@ -143,7 +143,7 @@ always @* begin
                 else if(counter == 8) begin
                     Data_rx5_nxt = current_rx;
                     state_nxt = Receiving;
-                    end
+                end
                 else if(counter == 9) begin
                     Data_rx6_nxt = current_rx;
                     state_nxt = PreStart;
@@ -168,9 +168,9 @@ assign X_tank_pos = Data_rx1;
 assign Y_tank_pos = Data_rx2;
 assign xpos_bullet_green_fromUART = Data_rx3[9:0];
 assign ypos_bullet_green_fromUART = Data_rx4[9:0];
-assign direction_for_enemy_fromUART = Data_rx5[3:1];
-assign tank_our_hit_fromUART = Data_rx5[0];
-assign direction_tank_fromUART = Data_rx5[5:4];
-assign select_mode_from_UART = Data_rx5[6];
-assign HP_enemy_state_fromUART = Data_rx6[7:0];
+assign HP_our_state_fromUART = Data_rx5;
+assign direction_for_enemy_fromUART = Data_rx6[3:1];
+assign tank_our_hit_fromUART = Data_rx6[0];
+assign direction_tank_fromUART = Data_rx6[5:4];
+assign obstacle_hit_fromUART = Data_rx6[6];
 endmodule

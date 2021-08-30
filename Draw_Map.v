@@ -46,7 +46,7 @@ always @* begin
         else if (((vcount_in >= 335 && vcount_in <= 338)||(vcount_in >= 366 && vcount_in <= 369))&& (hcount_in >= 2 && hcount_in <= 766)) {rgb_out_nxt} = 12'h5_1_2;
         //MURKI
         else if (((vcount_in >= 377 && vcount_in <= 393) && (hcount_in >= 38 && hcount_in <= 180))||((vcount_in >= 310 && vcount_in <= 328) && (hcount_in >= 269 && hcount_in <= 401))||
-        ((vcount_in >= 376 && vcount_in <= 390) && (hcount_in >= 390 && hcount_in <= 517)) || ((vcount_in >= 389 && vcount_in <= 415) && (hcount_in >= 624 && hcount_in <= 765))) {rgb_out_nxt} = 12'hD_A_0;
+        ((vcount_in >= 376 && vcount_in <= 390) && (hcount_in >= 390 && hcount_in <= 517))) {rgb_out_nxt} = 12'hD_A_0;
         //KAMYKI
         else if(((vcount_in >= 223 && vcount_in <= 260) && (hcount_in >= 101 && hcount_in <= 142))||((vcount_in >= 260 && vcount_in <= 301) && (hcount_in >= 581 && hcount_in <= 634)) || 
         ((vcount_in >= 123 && vcount_in <= 154) && (hcount_in >= 675 && hcount_in <= 710))||((vcount_in >= 479 && vcount_in <= 519) && (hcount_in >= 197 && hcount_in <= 244))|| 

@@ -13,9 +13,9 @@ input wire [9:0] xpos_bullet_green_toUART,
 input wire [9:0] ypos_bullet_green_toUART,
 input wire [2:0] direction_for_enemy_toUART,
 input wire tank_our_hit_toUART,
+input wire obstacle_hit_toUART,
 input wire [1:0] direction_tank_to_UART,
-input wire select_mode_to_UART,
-input wire [7:0] HP_our_state_toUART,
+input wire [7:0] HP_enemy_state_toUART,
 
 output wire tx,
 output wire [15:0] X_tank_pos,
@@ -24,9 +24,9 @@ output wire [9:0] xpos_bullet_green_fromUART,
 output wire [9:0] ypos_bullet_green_fromUART,
 output wire [2:0] direction_for_enemy_fromUART,
 output wire tank_our_hit_fromUART,
+output wire obstacle_hit_fromUART,
 output wire [1:0] direction_tank_fromUART,
-output wire select_mode_from_UART,
-output wire [7:0] HP_enemy_state_fromUART
+output wire [7:0] HP_our_state_fromUART
 );
 wire tick, rx_done_tick, tx_done_tick, TX_START;
 wire [7:0] rx_data_out, DataPosOut;
@@ -63,9 +63,9 @@ RegisterRXD RegisterRXD(
     .ypos_bullet_green_fromUART(ypos_bullet_green_fromUART),
     .direction_for_enemy_fromUART(direction_for_enemy_fromUART),
     .tank_our_hit_fromUART(tank_our_hit_fromUART),
+    .obstacle_hit_fromUART(obstacle_hit_fromUART),
     .direction_tank_fromUART(direction_tank_fromUART),
-    .select_mode_from_UART(select_mode_from_UART),
-    .HP_enemy_state_fromUART(HP_enemy_state_fromUART)
+    .HP_our_state_fromUART(HP_our_state_fromUART)
     );
 
 //TXD Modules
@@ -88,9 +88,9 @@ RegisterTXD RegisterTXD(
     .ypos_bullet_green_toUART(ypos_bullet_green_toUART),
     .direction_for_enemy_toUART(direction_for_enemy_toUART),
     .tank_our_hit_toUART(tank_our_hit_toUART),
+    .obstacle_hit_toUART(obstacle_hit_toUART),
     .direction_tank_to_UART(direction_tank_to_UART),
-    .select_mode_to_UART(select_mode_to_UART),
-    .HP_our_state_toUART(HP_our_state_toUART),
+    .HP_enemy_state_toUART(HP_enemy_state_toUART),
     
     .DataPosOut(DataPosOut),
     .TX_start(TX_START)

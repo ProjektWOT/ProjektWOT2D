@@ -86,11 +86,11 @@ set_property IOSTANDARD LVCMOS33 [get_ports {SCLK}]
 
 ## Switches
 #set_property PACKAGE_PIN V17 [get_ports {SW[0]}]					
-#set_property IOSTANDARD LVCMOS33 [get_ports {SW[0]}]
+#	set_property IOSTANDARD LVCMOS33 [get_ports {SW[0]}]
 #set_property PACKAGE_PIN V16 [get_ports {SW[1]}]					
-#set_property IOSTANDARD LVCMOS33 [get_ports {SW[1]}]
+#	set_property IOSTANDARD LVCMOS33 [get_ports {SW[1]}]
 #set_property PACKAGE_PIN W16 [get_ports {SW[2]}]					
-#set_property IOSTANDARD LVCMOS33 [get_ports {SW[2]}]
+#	set_property IOSTANDARD LVCMOS33 [get_ports {SW[2]}]
 
 ##USB-RS232 Interface
 ##Bank = 16, Pin name = ,					Sch name = UART_TXD_IN
@@ -102,31 +102,31 @@ set_property IOSTANDARD LVCMOS33 [get_ports UART_TXD]
 
 #7 segment display
 set_property PACKAGE_PIN W7 [get_ports {SEG[0]}]					
-set_property IOSTANDARD LVCMOS33 [get_ports {SEG[0]}]
+	set_property IOSTANDARD LVCMOS33 [get_ports {SEG[0]}]
 set_property PACKAGE_PIN W6 [get_ports {SEG[1]}]					
-set_property IOSTANDARD LVCMOS33 [get_ports {SEG[1]}]
+	set_property IOSTANDARD LVCMOS33 [get_ports {SEG[1]}]
 set_property PACKAGE_PIN U8 [get_ports {SEG[2]}]					
-set_property IOSTANDARD LVCMOS33 [get_ports {SEG[2]}]
+	set_property IOSTANDARD LVCMOS33 [get_ports {SEG[2]}]
 set_property PACKAGE_PIN V8 [get_ports {SEG[3]}]					
-set_property IOSTANDARD LVCMOS33 [get_ports {SEG[3]}]
+	set_property IOSTANDARD LVCMOS33 [get_ports {SEG[3]}]
 set_property PACKAGE_PIN U5 [get_ports {SEG[4]}]					
-set_property IOSTANDARD LVCMOS33 [get_ports {SEG[4]}]
+	set_property IOSTANDARD LVCMOS33 [get_ports {SEG[4]}]
 set_property PACKAGE_PIN V5 [get_ports {SEG[5]}]					
-set_property IOSTANDARD LVCMOS33 [get_ports {SEG[5]}]
+	set_property IOSTANDARD LVCMOS33 [get_ports {SEG[5]}]
 set_property PACKAGE_PIN U7 [get_ports {SEG[6]}]					
-set_property IOSTANDARD LVCMOS33 [get_ports {SEG[6]}]
+	set_property IOSTANDARD LVCMOS33 [get_ports {SEG[6]}]
 	#Bank = 34, Pin name = ,						Sch name = DP
-set_property PACKAGE_PIN V7 [get_ports {SEG[7]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {SEG[7]}]
+    set_property PACKAGE_PIN V7 [get_ports {SEG[7]}]
+    set_property IOSTANDARD LVCMOS33 [get_ports {SEG[7]}]
 	
 set_property PACKAGE_PIN U2 [get_ports {AN[0]}]					
-set_property IOSTANDARD LVCMOS33 [get_ports {AN[0]}]
-set_property PACKAGE_PIN U4 [get_ports {AN[1]}]                    
-set_property IOSTANDARD LVCMOS33 [get_ports {AN[1]}]
-set_property PACKAGE_PIN V4 [get_ports {AN[2]}]                    
-set_property IOSTANDARD LVCMOS33 [get_ports {AN[2]}]
-set_property PACKAGE_PIN W4 [get_ports {AN[3]}]                    
-set_property IOSTANDARD LVCMOS33 [get_ports {AN[3]}]
+        set_property IOSTANDARD LVCMOS33 [get_ports {AN[0]}]
+    set_property PACKAGE_PIN U4 [get_ports {AN[1]}]                    
+        set_property IOSTANDARD LVCMOS33 [get_ports {AN[1]}]
+    set_property PACKAGE_PIN V4 [get_ports {AN[2]}]                    
+        set_property IOSTANDARD LVCMOS33 [get_ports {AN[2]}]
+    set_property PACKAGE_PIN W4 [get_ports {AN[3]}]                    
+        set_property IOSTANDARD LVCMOS33 [get_ports {AN[3]}]
 	
 # Constraints for PCLK_MIRROR
 set_property PACKAGE_PIN J1 [get_ports {pclk_mirror}]
@@ -142,11 +142,11 @@ set_property IOSTANDARD LVCMOS33 [get_ports {rst}]
 
 # USB HID (PS/2)
 set_property PACKAGE_PIN C17 [get_ports ps2_clk]						
-set_property IOSTANDARD LVCMOS33 [get_ports ps2_clk]
-set_property PULLUP true [get_ports ps2_clk]
+	set_property IOSTANDARD LVCMOS33 [get_ports ps2_clk]
+	set_property PULLUP true [get_ports ps2_clk]
 set_property PACKAGE_PIN B17 [get_ports ps2_data]					
-set_property IOSTANDARD LVCMOS33 [get_ports ps2_data]	
-set_property PULLUP true [get_ports ps2_data]
+	set_property IOSTANDARD LVCMOS33 [get_ports ps2_data]	
+	set_property PULLUP true [get_ports ps2_data]
 	
 # Connect to input port when clock capable pin is selected for input
 create_clock -period 10.000 [get_ports clk]

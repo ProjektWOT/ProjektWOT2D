@@ -52,7 +52,7 @@ module disp_hex_mux
             end
          default:
             begin
-               an =  4'b0111;
+               an =  4'b1111;
                hex_in = hex3;
                dp = dp_in[3];
             end
@@ -72,10 +72,10 @@ module disp_hex_mux
          4'h7:    sseg[6:0] = ~7'b0000111;
          4'h8:    sseg[6:0] = ~7'b1111111;
          4'h9:    sseg[6:0] = ~7'b1101111;
-         4'ha:    sseg[6:0] = ~7'b1110111;
-         4'hb:    sseg[6:0] = ~7'b1111100;
+         4'ha:    sseg[6:0] = ~7'b1010000; //r
+         4'hb:    sseg[6:0] = ~7'b1100110; //Y
          4'hc:    sseg[6:0] = ~7'b0111001;
-         4'hd:    sseg[6:0] = ~7'b1011110;
+         4'hd:    sseg[6:0] = ~7'b1011110; //d
          4'he:    sseg[6:0] = ~7'b1111001;
          default: sseg[6:0] = ~7'b1110001;  //4'hf
      endcase

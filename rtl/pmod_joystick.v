@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 /*
+//https://www.instructables.com/How-to-Use-the-PmodJSTK-With-the-Basys3-FPGA/
 We used program from Xilinx forum and edited it to our needs.
 //////////////////////////////////////////////////////////////////////////////////
 // Company: Digilent Inc.
@@ -33,8 +34,8 @@ We used program from Xilinx forum and edited it to our needs.
 // 						Revision 0.01 - File Created (Josh Sackos)
 //////////////////////////////////////////////////////////////////////////////////
 Edit Authors:
-Orze³ £ukasz
-Œwiebocki Jakub
+OrzeÂ³ Â£ukasz
+Å’wiebocki Jakub
 */
 module pmod_joystick(
     input wire clk,	

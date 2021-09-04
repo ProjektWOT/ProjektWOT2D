@@ -61,7 +61,7 @@ wire tank_our_hit_fromUART, tank_our_hit_toUART, obstacle_hit_fromUART, obstacle
 wire [15:0] XPosTankUart, YPosTankUart;
 wire [1:0] direction_tank_fromUART, direction_tank_to_UART; 
 wire [7:0] HP_enemy_state_toUART, HP_our_state_fromUART;
-wire [3:0] Seconds;
+wire [12:0] ShellReady;
 uart Uart(
     .clk(clk_65MHz),
     .reset(RstExt),
@@ -90,11 +90,11 @@ uart Uart(
 disp_hex_mux DisplayHexMux(
     .clk(clk_65MHz),
     .reset(RstExt),             //Dla nadajnika
-    .hex0(Seconds[3:0]),   //Data_Jstk_X[3:0]
-    .hex1({3'b000, back_to_MENU}),   //Data_Jstk_X[7:4]
-    .hex2({3'b000, SelectMode}),  //{2'b0000,Data_Jstk_X[9:8]}
+    .hex0(ShellReady[11:8]),   //Data_Jstk_X[3:0]
+    .hex1(ShellReady[7:4]),   //Data_Jstk_X[7:4]
+    .hex2(ShellReady[3:0]),  //{2'b0000,Data_Jstk_X[9:8]}
     .hex3(HP_enemy_state_toUART[7:4]), //4'b0000
-    .dp_in(~4'b0000),
+    .dp_in(~{1'b0, ShellReady[12], 2'b00}),
     
     .an(AN),
     .sseg(SEG)
@@ -273,7 +273,7 @@ Tank_Gen Tank_Gen(
     .direction_for_enemy_toUART(direction_for_enemy_toUART),
     .direction_tank_to_UART(direction_tank_to_UART),
     .HP_enemy_state_toUART(HP_enemy_state_toUART),
-    .Seconds(Seconds),
+    .ShellReady(ShellReady),
     .back_to_MENU(back_to_MENU)
     );
 Tank_Oponent Tank_Oponent(

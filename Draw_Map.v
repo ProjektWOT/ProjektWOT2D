@@ -11,11 +11,14 @@ module Draw_Map(
     output reg [11:0] rgb_out
     );
    
-reg [11:0] rgb_out_nxt;
+reg [11:0] rgb_out_nxt, rgb_out_temp;
     
 always@ (posedge clk) begin
     if (rst) rgb_out <= 0;    
-    else rgb_out <= rgb_out_nxt;
+    else begin
+        rgb_out_temp <= rgb_out_nxt;
+        rgb_out <= rgb_out_temp;
+        end
 end
    
 localparam BORDERS = 12'hf_f_f;

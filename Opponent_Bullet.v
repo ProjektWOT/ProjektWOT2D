@@ -6,6 +6,7 @@ module Opponent_Bullet(
     input wire [9:0] xpos_bullet_red,
     input wire [9:0] ypos_bullet_red,
     input wire tank_enemy_hit_us,
+    input wire obstacle_hit,
     input wire hblnk,
     input wire vblnk,
     input wire hsync,
@@ -74,22 +75,22 @@ always@* begin
             end
         end
     GEN_SHELL_0: begin
-        if((tank_enemy_hit_us == 1)||(direction_from_enemy == 0)) begin state_nxt = IDLE; rgb_nxt = rgb; end
+        if((tank_enemy_hit_us == 1)||(direction_from_enemy == 0)||(obstacle_hit == 1)) begin state_nxt = IDLE; rgb_nxt = rgb; end
         else if(hcount >= xpos_bullet_red - 2 && hcount <= xpos_bullet_red + 2 && vcount >= ypos_bullet_red - 5 && vcount <= ypos_bullet_red + 5) rgb_nxt=12'h000;
         else rgb_nxt = rgb;
         end
     GEN_SHELL_1: begin
-        if((tank_enemy_hit_us == 1)||(direction_from_enemy == 0)) begin state_nxt = IDLE; rgb_nxt = rgb; end
+        if((tank_enemy_hit_us == 1)||(direction_from_enemy == 0)||(obstacle_hit == 1)) begin state_nxt = IDLE; rgb_nxt = rgb; end
         else if(hcount >= xpos_bullet_red - 2 && hcount <= xpos_bullet_red + 2 && vcount >= ypos_bullet_red + 19 && vcount <= ypos_bullet_red + 29) rgb_nxt=12'h000;
         else rgb_nxt = rgb;
         end
     GEN_SHELL_2: begin
-        if((tank_enemy_hit_us == 1)||(direction_from_enemy == 0)) begin state_nxt = IDLE; rgb_nxt = rgb; end
+        if((tank_enemy_hit_us == 1)||(direction_from_enemy == 0)||(obstacle_hit == 1)) begin state_nxt = IDLE; rgb_nxt = rgb; end
         else if(hcount >= xpos_bullet_red + 19 && hcount <= xpos_bullet_red + 29 && vcount >= ypos_bullet_red - 2 && vcount <= ypos_bullet_red + 2) rgb_nxt=12'h000;
         else rgb_nxt = rgb;
         end
     GEN_SHELL_3: begin
-        if((tank_enemy_hit_us == 1)||(direction_from_enemy == 0)) begin state_nxt = IDLE; rgb_nxt = rgb; end
+        if((tank_enemy_hit_us == 1)||(direction_from_enemy == 0)||(obstacle_hit == 1)) begin state_nxt = IDLE; rgb_nxt = rgb; end
         else if(hcount >= xpos_bullet_red - 5 && hcount <= xpos_bullet_red + 5 && vcount >= ypos_bullet_red - 2 && vcount <= ypos_bullet_red + 2) rgb_nxt=12'h000;
         else rgb_nxt = rgb;
         end

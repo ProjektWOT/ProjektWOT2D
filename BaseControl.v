@@ -53,7 +53,7 @@ always @* begin
 always @* begin
     case(State)
     MENU: begin
-        if(ypos >= 320 && ypos <= 350 && xpos >= 500 && xpos <= 560 && ButtonLeft == 1) begin
+        if(ypos >= 354 && ypos <= 379 && xpos >= 452 && xpos <= 581 && ButtonLeft == 1) begin
             Select_nxt = 1;
             rgb_nxt <= rgbMapa;
             end

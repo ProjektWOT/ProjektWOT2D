@@ -20,6 +20,9 @@ module GUI(
     output wire [11:0] rgb_out_menu
 );
 
+wire [11:0] rgb_pixel_menu, rgb_out_draw_menu;
+wire [14:0] pixel_addr;
+
 Delay_gui Delay_gui(
     .clk(clk),
     .rst(rst),
@@ -56,6 +59,26 @@ DrawMenu Menu(
     .clk(clk),
     .rst(rst),
     
-    .rgb_out(rgb_out_menu)
+    .rgb_out(rgb_out_draw_menu)
+    );
+ 
+DrawImageMenu DrawImageMenu(
+    .clk(clk),
+    .rst(rst),
+    .hcount_in(hcount_in),
+    .vcount_in(vcount_in),
+    .hblnk_in(hblnk_in),
+    .vblnk_in(vblnk_in),
+    .rgb_in(rgb_out_draw_menu),
+    .rgb_pixel(rgb_pixel_menu),
+    
+    .rgb_out(rgb_out_menu),
+    .pixel_addr(pixel_addr)
+);
+ImageMenu ImageMenu(
+    .clk(clk),
+    .address(pixel_addr),
+    
+    .rgb_menu(rgb_pixel_menu)
     );
 endmodule

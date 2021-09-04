@@ -37,7 +37,7 @@ module Gun_ctrl(
     output reg [9:0] ypos_bullet_green,
     output reg [2:0] direction_for_enemy,
     output reg [7:0] HP_enemy_state,
-    output reg [3:0] Seconds 
+    output wire [12:0] ShellReady 
 );
 
 reg [7:0] HP_enemy_state_nxt = 150;
@@ -48,11 +48,13 @@ reg [9:0] xpos_block, ypos_block, xpos_block_nxt, ypos_block_nxt;
 reg [9:0] xpos_bullet_green_nxt, ypos_bullet_green_nxt;
 reg [2:0] direction_for_enemy_nxt;
 reg tank_central_hit_nxt, obstacle_hit_nxt;
+reg Pointer, Pointer_nxt;
 
-reg [23:0] ReloadTime, ReloadTime_nxt;
-reg [3:0]  Seconds_nxt=9;
+reg [19:0] ReloadTime, ReloadTime_nxt;
+reg [3:0] Seconds, Seconds_nxt=5;
+reg [3:0] milis10, milis10_nxt, milis100, milis100_nxt;
 localparam DELAY = 130000;
-localparam RELOAD = 13000000; //13 000 000 -> 200ms
+localparam RELOAD = 650000; //650 000 -> 10ms
 
 localparam LOWER_LIMIT = 768;
 localparam UPPER_LIMIT = 2;
@@ -99,7 +101,9 @@ always@(posedge clk) begin
         ypos_block <= ypos_t;
         state <= IDLE;
         HP_enemy_state <= 150;
-        Seconds <= 9;
+        Seconds <= 5;
+        Pointer <= 1;
+        {milis100, milis10} <= 0;
         {counter, tank_central_hit, obstacle_hit, xpos_bullet_green, ypos_bullet_green, direction_for_enemy, ReloadTime} <= 0;
     end
     else begin
@@ -126,6 +130,9 @@ always@(posedge clk) begin
         HP_enemy_state <= HP_enemy_state_nxt;
         ReloadTime <= ReloadTime_nxt;
         Seconds <= Seconds_nxt;
+        milis10 <= milis10_nxt;
+        milis100 <= milis100_nxt;
+        Pointer <= Pointer_nxt;
     end
 end
 
@@ -145,20 +152,39 @@ always@* begin
     
     ReloadTime_nxt = ReloadTime;
     Seconds_nxt = Seconds;
+    milis10_nxt = milis10;
+    milis100_nxt = milis100;
+    Pointer_nxt = Pointer;
     if(select == 1 && HP_enemy_state != 0 && HP_our_state != 0) begin
-        if(left_click == 1 && Seconds == 0) Seconds_nxt = 9;
-        else if(Seconds == 0) Seconds_nxt = 0;
+        if(left_click == 1 && Seconds == 10) begin Seconds_nxt = 4; Pointer_nxt = 1; end
+        else if(Seconds == 0 || Seconds == 10) begin
+            Seconds_nxt = 10;
+            milis100_nxt = 13;
+            milis10_nxt = 11;
+            Pointer_nxt = 0;
+            end
         else if(ReloadTime >= RELOAD) begin
-            Seconds_nxt = Seconds - 1;
+            if(milis10 == 0) begin
+                if(milis100 == 0) begin
+                    milis10_nxt = 9;
+                    milis100_nxt = 9;
+                    Seconds_nxt = Seconds - 1;
+                    end
+                else begin
+                    milis10_nxt = 9;
+                    milis100_nxt = milis100 - 1;
+                    end
+                end
+            else milis10_nxt = milis10 - 1;
             ReloadTime_nxt = 0;
             end
         else ReloadTime_nxt = ReloadTime + 1;
-    end
-    else Seconds_nxt = 9;
+        end
+    else begin Seconds_nxt = 5; Pointer_nxt = 1; end
 
     case(state)
     IDLE: begin
-        if(select == 1 && left_click == 1 && Seconds == 0) begin
+        if(select == 1 && left_click == 1 && Seconds == 10) begin
             state_nxt = SHOT_0 + direction_bullet;
             tank_central_hit_nxt = 0;
             obstacle_hit_nxt = 0;
@@ -319,4 +345,5 @@ always@* begin
     endcase
     end
 
+assign ShellReady = {Pointer, milis10, milis100,Seconds};
 endmodule

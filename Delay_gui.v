@@ -18,15 +18,25 @@ module Delay_gui(
     output reg vsync_out
     );
     
+    reg [10:0] hcount_temp;
+    reg [9:0] vcount_temp;
+    reg hblnk_temp, vblnk_temp, hsync_temp, vsync_temp;
 always @(posedge clk) begin
-    if(rst) {hcount_out, vcount_out, hblnk_out, vblnk_out, hsync_out, vsync_out} <= 0;
-    else begin       
-        hcount_out <= hcount_in;
-        vcount_out <= vcount_in;
-        hblnk_out <= hblnk_in;
-        vblnk_out <= vblnk_in;
-        hsync_out <= hsync_in;
-        vsync_out <= vsync_in;
+    if(rst) {hcount_out, vcount_out, hblnk_out, vblnk_out, hsync_out, vsync_out, hcount_temp, vcount_temp, hblnk_temp, vblnk_temp, hsync_temp, vsync_temp} <= 0;
+    else begin
+        hcount_temp <= hcount_in;
+        vcount_temp <= vcount_in;
+        hblnk_temp <= hblnk_in;
+        vblnk_temp <= vblnk_in;
+        hsync_temp <= hsync_in;
+        vsync_temp <= vsync_in;
+    
+        hcount_out <= hcount_temp;
+        vcount_out <= vcount_temp;
+        hblnk_out <= hblnk_temp;
+        vblnk_out <= vblnk_temp;
+        hsync_out <= hsync_temp;
+        vsync_out <= vsync_temp;
         end
     end
 endmodule

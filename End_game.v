@@ -97,7 +97,7 @@ if(game_end==1) begin
     else rgb_out_nxt = rgb_temp;
 end
 else if(game_end==2) begin
-    if (counter_end==1) counter_end_nxt = 520000; 
+    if (counter_end==1) counter_end_nxt = 1000000; 
     else counter_end_nxt = counter_end + 1;
     if(select == 0) rgb_out_nxt = rgb_temp;
     else if (rgb_pixel_lose == 12'hf_f_f) rgb_out_nxt = rgb_temp;
